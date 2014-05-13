@@ -25,6 +25,7 @@ package htsjdk.samtools;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
@@ -33,7 +34,7 @@ import java.io.OutputStream;
 public class SAMFileWriterFactoryTest {
 
     /** PIC-442Confirm that writing to a special file does not cause exception when writing additional files. */
-    @Test(groups={"unix"})
+    @Test(groups = {"unix"})
     public void specialFileWriterTest() {
         createSmallBam(new File("/dev/null"));
     }
@@ -41,43 +42,51 @@ public class SAMFileWriterFactoryTest {
     @Test()
     public void ordinaryFileWriterTest() throws Exception {
         final File outputFile = File.createTempFile("tmp.", BamFileIoUtils.BAM_FILE_EXTENSION);
+        final File cramOutputFile = File.createTempFile("tmp.", CramFileIoUtils.CRAM_FILE_EXTENSION);
         outputFile.delete();
         outputFile.deleteOnExit();
+        cramOutputFile.delete();
+        cramOutputFile.deleteOnExit();
+
         String basename = outputFile.getName();
         basename = basename.substring(0, basename.lastIndexOf("."));
         final File indexFile = new File(outputFile.getParent(), basename + BAMIndex.BAMIndexSuffix);
         indexFile.deleteOnExit();
         final File md5File = new File(outputFile.getParent(), outputFile.getName() + ".md5");
         md5File.deleteOnExit();
+
         createSmallBam(outputFile);
+        createSmallCram(cramOutputFile);
+
         Assert.assertTrue(outputFile.length() > 0);
         Assert.assertTrue(indexFile.length() > 0);
         Assert.assertTrue(md5File.length() > 0);
+        Assert.assertTrue(cramOutputFile.length() > 0);
     }
 
-    @Test(description="create a BAM in memory,  should start with GZipInputStream.GZIP_MAGIC")
-    public void inMemoryBam()  throws Exception  {
-    	ByteArrayOutputStream os=new ByteArrayOutputStream();
-    	createSmallBamToOutputStream(os,true);
-    	os.flush();
-    	os.close();
-    	byte blob[]=os.toByteArray();
+    @Test(description = "create a BAM in memory,  should start with GZipInputStream.GZIP_MAGIC")
+    public void inMemoryBam() throws Exception {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        createSmallBamToOutputStream(os, true);
+        os.flush();
+        os.close();
+        byte blob[] = os.toByteArray();
         Assert.assertTrue(blob.length > 2);
-        int head = ((int) blob[0] & 0xff) | ((blob[1] << 8 ) & 0xff00 );
+        int head = ((int) blob[0] & 0xff) | ((blob[1] << 8) & 0xff00);
         Assert.assertTrue(java.util.zip.GZIPInputStream.GZIP_MAGIC == head);
     }
 
-    @Test(description="create a SAM in memory,  should start with '@HD'")
-    public void inMemorySam()  throws Exception  {
-    	ByteArrayOutputStream os=new ByteArrayOutputStream();
-    	createSmallBamToOutputStream(os,false);
-    	os.flush();
-    	os.close();
-    	String sam=new String(os.toByteArray());
+    @Test(description = "create a SAM in memory,  should start with '@HD'")
+    public void inMemorySam() throws Exception {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        createSmallBamToOutputStream(os, false);
+        os.flush();
+        os.close();
+        String sam = new String(os.toByteArray());
         Assert.assertFalse(sam.isEmpty());
-        Assert.assertTrue(sam.startsWith("@HD\t"),"SAM: bad prefix");
+        Assert.assertTrue(sam.startsWith("@HD\t"), "SAM: bad prefix");
     }
-    
+
     private void createSmallBam(final File outputFile) {
         final SAMFileWriterFactory factory = new SAMFileWriterFactory();
         factory.setCreateIndex(true);
@@ -90,9 +99,25 @@ public class SAMFileWriterFactoryTest {
         fillSmallBam(writer);
         writer.close();
     }
-    
-    
-   private void createSmallBamToOutputStream(final OutputStream outputStream,boolean binary) {
+
+    private void createSmallCram(final File outputFile) {
+        final SAMFileHeader header = new SAMFileHeader();
+        header.setSortOrder(SAMFileHeader.SortOrder.coordinate);
+        header.addSequence(new SAMSequenceRecord("chr1", 123));
+        fillSmallCram(outputFile);
+    }
+
+    private void fillSmallCram(File outputFile) {
+        final SAMFileWriterFactory factory = new SAMFileWriterFactory();
+        final SAMRecordSetBuilder builder = new SAMRecordSetBuilder();
+        builder.addUnmappedFragment("HiMom!");
+        final SAMFileWriter writer = factory.makeCRAMWriter(builder.getHeader(), false, outputFile);
+        for (final SAMRecord rec : builder.getRecords()) writer.addAlignment(rec);
+        writer.close();
+    }
+
+
+    private void createSmallBamToOutputStream(final OutputStream outputStream, final boolean binary) {
         final SAMFileWriterFactory factory = new SAMFileWriterFactory();
         factory.setCreateIndex(false);
         factory.setCreateMd5File(false);
@@ -100,18 +125,18 @@ public class SAMFileWriterFactoryTest {
         // index only created if coordinate sorted
         header.setSortOrder(SAMFileHeader.SortOrder.coordinate);
         header.addSequence(new SAMSequenceRecord("chr1", 123));
-        final SAMFileWriter writer = (binary?
-        			factory.makeBAMWriter(header, false, outputStream):
-        			factory.makeSAMWriter(header, false, outputStream)
-        			);
+        final SAMFileWriter writer = (binary ?
+                factory.makeBAMWriter(header, false, outputStream) :
+                factory.makeSAMWriter(header, false, outputStream)
+        );
         fillSmallBam(writer);
         writer.close();
     }
-   
-   private void fillSmallBam(SAMFileWriter writer) {
-       final SAMRecordSetBuilder builder = new SAMRecordSetBuilder();
-       builder.addUnmappedFragment("HiMom!");
-       for (final SAMRecord rec: builder.getRecords()) writer.addAlignment(rec);
-   }    
-   
+
+    private void fillSmallBam(final SAMFileWriter writer) {
+        final SAMRecordSetBuilder builder = new SAMRecordSetBuilder();
+        builder.addUnmappedFragment("HiMom!");
+        for (final SAMRecord rec : builder.getRecords()) writer.addAlignment(rec);
+    }
+
 }

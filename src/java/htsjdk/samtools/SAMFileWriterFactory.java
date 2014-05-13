@@ -29,6 +29,7 @@ import htsjdk.samtools.util.Md5CalculatingOutputStream;
 import htsjdk.samtools.util.RuntimeIOException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -38,7 +39,7 @@ import java.io.OutputStream;
  */
 public class SAMFileWriterFactory {
     private static boolean defaultCreateIndexWhileWriting = Defaults.CREATE_INDEX;
-    private boolean createIndex = defaultCreateIndexWhileWriting ;
+    private boolean createIndex = defaultCreateIndexWhileWriting;
     private static boolean defaultCreateMd5File = Defaults.CREATE_MD5;
     private boolean createMd5File = defaultCreateMd5File;
     private boolean useAsyncIo = Defaults.USE_ASYNC_IO;
@@ -81,7 +82,7 @@ public class SAMFileWriterFactory {
      * @param setting whether to attempt to create a BAM index while creating the BAM file.
      * @return this factory object
      */
-    public SAMFileWriterFactory setCreateIndex(final boolean setting){
+    public SAMFileWriterFactory setCreateIndex(final boolean setting) {
         this.createIndex = setting;
         return this;
     }
@@ -95,7 +96,7 @@ public class SAMFileWriterFactory {
      * of records stored in subsequent calls to one of the make...() methods.
      *
      * @param maxRecordsInRam Number of records to store in RAM before spilling to temporary file when
-     * creating a sorted SAM or BAM file.
+     *                        creating a sorted SAM or BAM file.
      */
     public SAMFileWriterFactory setMaxRecordsInRam(final int maxRecordsInRam) {
         this.maxRecordsInRam = maxRecordsInRam;
@@ -123,7 +124,6 @@ public class SAMFileWriterFactory {
     /**
      * Controls size of write buffer.
      * Default value: [[htsjdk.samtools.Defaults#BUFFER_SIZE]]
-     *
      */
     public SAMFileWriterFactory setBufferSize(final int bufferSize) {
         this.bufferSize = bufferSize;
@@ -132,6 +132,7 @@ public class SAMFileWriterFactory {
 
     /**
      * Set the temporary directory to use when sort data.
+     *
      * @param tmpDir Path to the temporary directory
      */
     public SAMFileWriterFactory setTempDirectory(final File tmpDir) {
@@ -141,20 +142,37 @@ public class SAMFileWriterFactory {
 
     /**
      * Create a BAMFileWriter that is ready to receive SAMRecords.  Uses default compression level.
-     * @param header entire header. Sort order is determined by the sortOrder property of this arg.
-     * @param presorted if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
+     *
+     * @param header     entire header. Sort order is determined by the sortOrder property of this arg.
+     * @param presorted  if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
      * @param outputFile where to write the output.
      */
     public SAMFileWriter makeBAMWriter(final SAMFileHeader header, final boolean presorted, final File outputFile) {
         return makeBAMWriter(header, presorted, outputFile, BlockCompressedOutputStream.getDefaultCompressionLevel());
     }
 
+    public SAMFileWriter makeCRAMWriter(final SAMFileHeader header, final boolean presorted, final File outputFile) {
+        final CRAMFileWriter writer;
+        try {
+            writer = new CRAMFileWriter(outputFile);
+
+            initializeCRAMWriter(writer, header, presorted);
+            if (useAsyncIo) {
+                return new AsyncSAMFileWriter(writer, asyncOutputBufferSize);
+            } else
+                return writer;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
-     *
      * Create a BAMFileWriter that is ready to receive SAMRecords.
-     * @param header entire header. Sort order is determined by the sortOrder property of this arg.
-     * @param presorted if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
-     * @param outputFile where to write the output.
+     *
+     * @param header           entire header. Sort order is determined by the sortOrder property of this arg.
+     * @param presorted        if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
+     * @param outputFile       where to write the output.
      * @param compressionLevel Override default compression level with the given value, between 0 (fastest) and 9 (smallest).
      */
     public SAMFileWriter makeBAMWriter(final SAMFileHeader header, final boolean presorted, final File outputFile,
@@ -171,13 +189,12 @@ public class SAMFileWriterFactory {
             if (this.createIndex && !createIndex) {
                 System.err.println("Cannot create index for BAM because output file is not a regular file: " + outputFile.getAbsolutePath());
             }
-            if (this.tmpDir!=null) ret.setTempDirectory(this.tmpDir);
+            if (this.tmpDir != null) ret.setTempDirectory(this.tmpDir);
             initializeBAMWriter(ret, header, presorted, createIndex);
 
             if (this.useAsyncIo) return new AsyncSAMFileWriter(ret, this.asyncOutputBufferSize);
             else return ret;
-        }
-        catch (final IOException ioe) {
+        } catch (final IOException ioe) {
             throw new RuntimeIOException("Error opening file: " + outputFile.getAbsolutePath());
         }
     }
@@ -188,23 +205,32 @@ public class SAMFileWriterFactory {
             writer.setMaxRecordsInRam(maxRecordsInRam);
         }
         writer.setHeader(header);
-        if (createIndex && writer.getSortOrder().equals(SAMFileHeader.SortOrder.coordinate)){
+        if (createIndex && writer.getSortOrder().equals(SAMFileHeader.SortOrder.coordinate)) {
             writer.enableBamIndexConstruction();
         }
     }
 
+    private void initializeCRAMWriter(final CRAMFileWriter writer, final SAMFileHeader header, final boolean presorted) {
+        writer.setSortOrder(header.getSortOrder(), presorted);
+        if (maxRecordsInRam != null) {
+            writer.setMaxRecordsInRam(maxRecordsInRam);
+        }
+        writer.setHeader(header);
+    }
+
     /**
      * Create a SAMTextWriter that is ready to receive SAMRecords.
-     * @param header entire header. Sort order is determined by the sortOrder property of this arg.
-     * @param presorted if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
+     *
+     * @param header     entire header. Sort order is determined by the sortOrder property of this arg.
+     * @param presorted  if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
      * @param outputFile where to write the output.
      */
     public SAMFileWriter makeSAMWriter(final SAMFileHeader header, final boolean presorted, final File outputFile) {
         try {
             final SAMTextWriter ret = this.createMd5File
-                ? new SAMTextWriter(new Md5CalculatingOutputStream(new FileOutputStream(outputFile, false),
+                    ? new SAMTextWriter(new Md5CalculatingOutputStream(new FileOutputStream(outputFile, false),
                     new File(outputFile.getAbsolutePath() + ".md5")))
-                : new SAMTextWriter(outputFile);
+                    : new SAMTextWriter(outputFile);
             ret.setSortOrder(header.getSortOrder(), presorted);
             if (maxRecordsInRam != null) {
                 ret.setMaxRecordsInRam(maxRecordsInRam);
@@ -213,8 +239,7 @@ public class SAMFileWriterFactory {
 
             if (this.useAsyncIo) return new AsyncSAMFileWriter(ret, this.asyncOutputBufferSize);
             else return ret;
-        }
-        catch (final IOException ioe) {
+        } catch (final IOException ioe) {
             throw new RuntimeIOException("Error opening file: " + outputFile.getAbsolutePath());
         }
     }
@@ -222,11 +247,11 @@ public class SAMFileWriterFactory {
     /**
      * Create a SAMTextWriter for writing to a stream that is ready to receive SAMRecords.
      * This method does not support the creation of an MD5 file
-     * 
-     * @param header entire header. Sort order is determined by the sortOrder property of this arg.
+     *
+     * @param header    entire header. Sort order is determined by the sortOrder property of this arg.
      * @param presorted if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
-     * @param stream the stream to write records to.  Note that this method does not buffer the stream, so the
-     *               caller must buffer if desired.  Note that PrintStream is buffered.
+     * @param stream    the stream to write records to.  Note that this method does not buffer the stream, so the
+     *                  caller must buffer if desired.  Note that PrintStream is buffered.
      */
     public SAMFileWriter makeSAMWriter(final SAMFileHeader header, final boolean presorted, final OutputStream stream) {
         return initWriter(header, presorted, false, new SAMTextWriter(stream));
@@ -235,11 +260,11 @@ public class SAMFileWriterFactory {
     /**
      * Create a BAMFileWriter for writing to a stream that is ready to receive SAMRecords.
      * This method does not support the creation of an MD5 file
-     * 
-     * @param header entire header. Sort order is determined by the sortOrder property of this arg.
+     *
+     * @param header    entire header. Sort order is determined by the sortOrder property of this arg.
      * @param presorted if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
-     * @param stream the stream to write records to.  Note that this method does not buffer the stream, so the
-     *               caller must buffer if desired.  Note that PrintStream is buffered.
+     * @param stream    the stream to write records to.  Note that this method does not buffer the stream, so the
+     *                  caller must buffer if desired.  Note that PrintStream is buffered.
      */
 
     public SAMFileWriter makeBAMWriter(final SAMFileHeader header, final boolean presorted, final OutputStream stream) {
@@ -248,15 +273,15 @@ public class SAMFileWriterFactory {
 
     /**
      * Initialize SAMTextWriter or a BAMFileWriter and possibly wrap in AsyncSAMFileWriter
-     * 
-     * @param header entire header. Sort order is determined by the sortOrder property of this arg.
+     *
+     * @param header    entire header. Sort order is determined by the sortOrder property of this arg.
      * @param presorted if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
-     * @param binary do we want to generate a BAM or a SAM
-     * @param writer SAM or BAM writer to initialize and maybe wrap.
+     * @param binary    do we want to generate a BAM or a SAM
+     * @param writer    SAM or BAM writer to initialize and maybe wrap.
      */
 
-   private SAMFileWriter initWriter(final SAMFileHeader header, final boolean presorted, final boolean binary,
-                                    final SAMFileWriterImpl writer) {
+    private SAMFileWriter initWriter(final SAMFileHeader header, final boolean presorted, final boolean binary,
+                                     final SAMFileWriterImpl writer) {
         writer.setSortOrder(header.getSortOrder(), presorted);
         if (maxRecordsInRam != null) {
             writer.setMaxRecordsInRam(maxRecordsInRam);
@@ -269,11 +294,14 @@ public class SAMFileWriterFactory {
 
     /**
      * Create either a SAM or a BAM writer based on examination of the outputFile extension.
-     * @param header entire header. Sort order is determined by the sortOrder property of this arg.
-     * @param presorted presorted if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
+     *
+     * @param header     entire header. Sort order is determined by the sortOrder property of this arg.
+     * @param presorted  presorted if true, SAMRecords must be added to the SAMFileWriter in order that agrees with header.sortOrder.
      * @param outputFile where to write the output.  Must end with .sam or .bam.
      * @return SAM or BAM writer based on file extension of outputFile.
+     * @deprecated Use makeWriter method that supports SAM/BAM and CRAM
      */
+    @Deprecated
     public SAMFileWriter makeSAMOrBAMWriter(final SAMFileHeader header, final boolean presorted, final File outputFile) {
         final String filename = outputFile.getName();
         if (filename.endsWith(BamFileIoUtils.BAM_FILE_EXTENSION)) {
@@ -283,5 +311,19 @@ public class SAMFileWriterFactory {
             return makeSAMWriter(header, presorted, outputFile);
         }
         return makeBAMWriter(header, presorted, outputFile);
+    }
+
+    public SAMFileWriter makeWriter(final SAMFileHeader header, final boolean presorted, final File outputFile) {
+        final String filename = outputFile.getName();
+        if (filename.endsWith(BamFileIoUtils.BAM_FILE_EXTENSION)) {
+            return makeBAMWriter(header, presorted, outputFile);
+        }
+        if (filename.endsWith(CramFileIoUtils.CRAM_FILE_EXTENSION)) {
+            makeCRAMWriter(header, presorted, outputFile);
+        }
+        if (filename.endsWith(".sam")) {
+            return makeSAMWriter(header, presorted, outputFile);
+        }
+        return makeCRAMWriter(header, presorted, outputFile);
     }
 }

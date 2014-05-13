@@ -182,7 +182,10 @@ public abstract class SamReaderFactory {
                         primitiveSamReader = new SAMTextReader(new BlockCompressedInputStream(bufferedStream), validationStringency, this.samRecordFactory);
                     } else if (SamStreams.isGzippedSAMFile(bufferedStream)) {
                         primitiveSamReader = new SAMTextReader(new GZIPInputStream(bufferedStream), validationStringency, this.samRecordFactory);
-                    } else {
+                    } else if (SamStreams.isCRAMFile(bufferedStream)){
+                        primitiveSamReader = new CRAMFileReader(sourceFile, bufferedStream);
+                    }
+                    else {
                         if (indexDefined) {
                             bufferedStream.close();
                             throw new RuntimeException("Cannot use index file with textual SAM file");

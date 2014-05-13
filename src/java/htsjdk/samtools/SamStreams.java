@@ -1,10 +1,12 @@
 package htsjdk.samtools;
 
+import htsjdk.samtools.cram.structure.CramHeader;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.util.BlockCompressedInputStream;
 import htsjdk.samtools.util.BlockCompressedStreamConstants;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -46,6 +48,15 @@ public class SamStreams {
         final byte[] magicBuf = new byte[4];
         final int magicLength = readBytes(new BlockCompressedInputStream(new ByteArrayInputStream(buffer)), magicBuf, 0, 4);
         return magicLength == BAMFileConstants.BAM_MAGIC.length && Arrays.equals(BAMFileConstants.BAM_MAGIC, magicBuf);
+    }
+
+    public static boolean isCRAMFile(final InputStream stream) throws IOException {
+        final int buffSize = CramHeader.magick.length;
+        final DataInputStream dis = new DataInputStream(stream);
+        final byte[] buffer = new byte[buffSize];
+        dis.readFully(buffer);
+        dis.reset();
+        return Arrays.equals(buffer, CramHeader.magick);
     }
 
     // Its too expensive to examine the remote file to determine type.
