@@ -3,3 +3,5 @@ jdk:
   - oraclejdk7
   - openjdk7
   - openjdk6
+before_install:
+  - mvn install:install-file -Dfile=lib/cofoja/cofoja-1.0-r139.jar -DgroupId=com.google.java.contract -DartifactId=cofoja -Dversion=1.0-r139 -Dpackaging=jar
