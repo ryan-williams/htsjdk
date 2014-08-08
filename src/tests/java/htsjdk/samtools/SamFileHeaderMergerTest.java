@@ -79,13 +79,13 @@ public class SamFileHeaderMergerTest {
     public void testMerging() {
         File INPUT[] = {new File(TEST_DATA_DIR, "SamFileHeaderMergerTest/Chromosome1to10.bam"),
                         new File(TEST_DATA_DIR, "SamFileHeaderMergerTest/Chromosome5to9.bam")};
-        final List<SAMFileReader> readers = new ArrayList<SAMFileReader>();
+        final List<SamReader> readers = new ArrayList<SamReader>();
         final List<SAMFileHeader> headers = new ArrayList<SAMFileHeader>();
         for (final File inFile : INPUT) {
             IOUtil.assertFileIsReadable(inFile);
-            final SAMFileReader in = new SAMFileReader(inFile);
             // We are now checking for zero-length reads, so suppress complaint about that.
-            in.setValidationStringency(ValidationStringency.SILENT);
+            final SamReader in = SamReaderFactory.makeDefault().validationStringency(ValidationStringency.SILENT).open(inFile);
+
             readers.add(in);
             headers.add(in.getFileHeader());
         }
@@ -156,13 +156,12 @@ public class SamFileHeaderMergerTest {
             expected_output += line + "\n";
         }
 
-        final List<SAMFileReader> readers = new ArrayList<SAMFileReader>();
+        final List<SamReader> readers = new ArrayList<SamReader>();
         final List<SAMFileHeader> headers = new ArrayList<SAMFileHeader>();
         for (final File inFile : inputFiles) {
             IOUtil.assertFileIsReadable(inFile);
-            final SAMFileReader in = new SAMFileReader(inFile);
             // We are now checking for zero-length reads, so suppress complaint about that.
-            in.setValidationStringency(ValidationStringency.SILENT);
+            final SamReader in = SamReaderFactory.makeDefault().validationStringency(ValidationStringency.SILENT).open(inFile);
             readers.add(in);
             headers.add(in.getFileHeader());
         }
