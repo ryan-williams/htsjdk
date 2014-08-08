@@ -108,7 +108,7 @@ public class ReferenceSource {
 				return bases;
 			}
 		}
-
+/*
 		{ // try to fetch sequence by md5:
 			if (md5 != null)
 				try {
@@ -121,7 +121,7 @@ public class ReferenceSource {
 				cacheW.put(md5, new WeakReference<byte[]>(bases));
 				return bases;
 			}
-		}
+		}*/
 
 		// sequence not found, give up:
 		return null;
