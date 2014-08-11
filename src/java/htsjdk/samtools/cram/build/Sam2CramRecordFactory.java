@@ -113,6 +113,7 @@ public class Sam2CramRecordFactory {
 
 	public CramCompressionRecord createCramRecord(SAMRecord record) {
 		CramCompressionRecord cramRecord = new CramCompressionRecord();
+        cramRecord.setForcePreserveQualityScores(losslessQS);
 		if (record.getReadPairedFlag()) {
 			cramRecord.mateAlignmentStart = record.getMateAlignmentStart();
 			cramRecord.setMateUmapped(record.getMateUnmappedFlag());

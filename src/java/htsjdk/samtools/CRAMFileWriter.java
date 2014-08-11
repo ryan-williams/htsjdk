@@ -169,7 +169,7 @@ public class CRAMFileWriter extends SAMFileWriterImpl {
 
 		updateReferenceContext(alignment.getReferenceIndex());
 
-		records.add(sam2CramRecordFactory.createCramRecord(alignment));
+		records.add(sam2CramRecordFactory.createCramRecord(alignment) );
 	}
 
 	/**
