@@ -206,6 +206,8 @@ public class CRAMFileWriter extends SAMFileWriterImpl {
 			refs = source.getReferenceBases(
 					samFileHeader.getSequence(refSeqIndex), true);
 		sam2CramRecordFactory = new Sam2CramRecordFactory(refs, samFileHeader);
+        sam2CramRecordFactory.losslessQS = true;
+        sam2CramRecordFactory.setCaptureUnmappedScores(true);
 	}
 
 	@Override
