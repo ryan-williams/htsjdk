@@ -98,6 +98,7 @@
 
     <target name="compile-samtools" depends="init" description="Compile sam-samtools files without cleaning">
         <compile-src includes="htsjdk/samtools/**/*.*"/>
+        <compile-src includes="htsjdk/samtools2/**/*.*"/>
     </target>
 
     <target name="compile-tribble" depends="init, compile-samtools" description="Compile tribble files without cleaning">
@@ -112,6 +113,7 @@
 
     <target name="compile-samtools-tests" depends="init" description="Compile samtools test files without cleaning">
         <compile-tests includes="htsjdk/samtools/**/*.*"/>
+        <compile-tests includes="htsjdk/samtools2/**/*.*"/>
     </target>
 
     <target name="compile-tribble-tests" depends="init" description="Compile tribble test files without cleaning">
@@ -177,7 +179,8 @@
             description="Builds htsjdk-${htsjdk-version}.jar for inclusion in other projects">
         <mkdir dir="${dist}"/>
         <jar destfile="${dist}/htsjdk-${htsjdk-version}.jar" compress="no">
-            <fileset dir="${classes}" includes ="htsjdk/samtools/**/*.*"/>
+            <fileset dir="${classes}" includes="htsjdk/samtools/**/*.*"/>
+            <fileset dir="${classes}" includes="htsjdk/samtools2/**/*.*"/>
             <fileset dir="${classes}" includes="htsjdk/tribble/**/*.*"/>
             <fileset dir="${classes}" includes="htsjdk/variant/**/*.*"/>
             <manifest>

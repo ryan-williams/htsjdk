@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2009 The Broad Institute
+ * Copyright (c) 2011 The Broad Institute
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package htsjdk.samtools;
+package htsjdk.samtools2;
 
 /**
- * Constants used in reading & writing BAM files
+ * CVO to use as a method return value.
  */
-public class BAMFileConstants {
-    /**
-     * The beginning of a BAMRecord is a fixed-size block of 8 int32s
-     */
-    static final int FIXED_BLOCK_SIZE = 8 * 4;
+public class TagValueAndUnsignedArrayFlag {
+    public final Object value;
+    public final boolean isUnsignedArray;
 
-    /**
-     * BAM file magic number.  This is what is present in the gunzipped version of the file,
-     * which never exists on disk.
-     */
+    TagValueAndUnsignedArrayFlag(Object value, boolean unsignedArray) {
+        this.value = value;
+        isUnsignedArray = unsignedArray;
+    }
 
-    public static final byte[] BAM_MAGIC = "BAM\1".getBytes();
-    /**
-     * BAM index file magic number.
-     */
-    static final byte[] BAM_INDEX_MAGIC = "BAI\1".getBytes();
+    TagValueAndUnsignedArrayFlag(Object value) {
+        this.value = value;
+        this.isUnsignedArray = false;
+    }
 }

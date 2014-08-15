@@ -21,25 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package htsjdk.samtools;
+package htsjdk.samtools2.filter;
+import htsjdk.samtools2.SAMRecord;
 
 /**
- * Constants used in reading & writing BAM files
+ * Filter out SAMRecords with DuplicateRead flag set
+ *
+ * $Id$
  */
-public class BAMFileConstants {
+public class DuplicateReadFilter implements SamRecordFilter {
     /**
-     * The beginning of a BAMRecord is a fixed-size block of 8 int32s
+     * @param record the SAMRecord to evaluate
+     * @return true if the SAMRecord matches the filter, otherwise false
      */
-    static final int FIXED_BLOCK_SIZE = 8 * 4;
+    public boolean filterOut(final SAMRecord record) {
+        return record.getDuplicateReadFlag();
+    }
 
     /**
-     * BAM file magic number.  This is what is present in the gunzipped version of the file,
-     * which never exists on disk.
+     * Determines whether a pair of SAMRecord matches this filter
+     *
+     * @param first  the first SAMRecord to evaluate
+     * @param second the second SAMRecord to evaluate
+     *
+     * @return true if the SAMRecords matches the filter, otherwise false
      */
-
-    public static final byte[] BAM_MAGIC = "BAM\1".getBytes();
-    /**
-     * BAM index file magic number.
-     */
-    static final byte[] BAM_INDEX_MAGIC = "BAI\1".getBytes();
+    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+        throw new UnsupportedOperationException("Paired DuplicateReadFilter filter not implemented!");
+    }
 }

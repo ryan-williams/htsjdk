@@ -21,25 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package htsjdk.samtools;
+package htsjdk.samtools2;
 
 /**
- * Constants used in reading & writing BAM files
+ * Represents the contiguous alignment of a subset of read bases to a reference
+ * sequence. Simply put an alignment block tells you that read bases from
+ * readStart are aligned to the reference (matching or mismatching) from
+ * referenceStart for length bases.
+ *
+ * @author Tim Fennell
  */
-public class BAMFileConstants {
-    /**
-     * The beginning of a BAMRecord is a fixed-size block of 8 int32s
-     */
-    static final int FIXED_BLOCK_SIZE = 8 * 4;
+public class AlignmentBlock {
+    private int readStart;
+    private int referenceStart;
+    private int length;
 
-    /**
-     * BAM file magic number.  This is what is present in the gunzipped version of the file,
-     * which never exists on disk.
-     */
+    /** Constructs a new alignment block with the supplied read and ref starts and length. */
+    AlignmentBlock(int readStart, int referenceStart, int length) {
+        this.readStart = readStart;
+        this.referenceStart = referenceStart;
+        this.length = length;
+    }
 
-    public static final byte[] BAM_MAGIC = "BAM\1".getBytes();
-    /**
-     * BAM index file magic number.
-     */
-    static final byte[] BAM_INDEX_MAGIC = "BAI\1".getBytes();
+    /** The first, 1-based, base in the read that is aligned to the reference reference. */
+    public int getReadStart() { return readStart; }
+
+    /** The first, 1-based, position in the reference to which the read is aligned. */
+    public int getReferenceStart() { return referenceStart; }
+
+    /** The number of contiguous bases aligned to the reference. */
+    public int getLength() { return length; }
 }

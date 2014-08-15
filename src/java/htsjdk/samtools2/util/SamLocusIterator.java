@@ -23,17 +23,29 @@
  */
 package htsjdk.samtools2.util;
 
-import htsjdk.samtools.AlignmentBlock;
+import htsjdk.samtools2.AlignmentBlock;
 import htsjdk.samtools.SAMException;
-import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMFileReader;
-import htsjdk.samtools.SAMRecord;
-import htsjdk.samtools.SAMSequenceRecord;
-import htsjdk.samtools.filter.AggregateFilter;
-import htsjdk.samtools.filter.DuplicateReadFilter;
-import htsjdk.samtools.filter.FilteringIterator;
-import htsjdk.samtools.filter.SamRecordFilter;
-import htsjdk.samtools.filter.SecondaryOrSupplementaryFilter;
+import htsjdk.samtools2.SAMFileHeader;
+import htsjdk.samtools2.SAMFileReader;
+import htsjdk.samtools2.SAMRecord;
+import htsjdk.samtools2.SAMSequenceRecord;
+import htsjdk.samtools2.filter.AggregateFilter;
+import htsjdk.samtools2.filter.DuplicateReadFilter;
+import htsjdk.samtools2.filter.FilteringIterator;
+import htsjdk.samtools2.filter.SamRecordFilter;
+import htsjdk.samtools2.filter.SecondaryOrSupplementaryFilter;
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.samtools.util.Interval;
+import htsjdk.samtools.util.IntervalList;
+import htsjdk.samtools.util.IntervalListReferenceSequenceMask;
+import htsjdk.samtools.util.Locus;
+import htsjdk.samtools.util.LocusComparator;
+import htsjdk.samtools.util.LocusImpl;
+import htsjdk.samtools.util.Log;
+import htsjdk.samtools.util.PeekableIterator;
+import htsjdk.samtools.util.ReferenceSequenceMask;
+import htsjdk.samtools2.util.SamRecordIntervalIteratorFactory;
+import htsjdk.samtools2.util.WholeGenomeReferenceSequenceMask;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,5 +1,14 @@
-package htsjdk.samtools;
+package htsjdk.samtools2;
  
+import htsjdk.samtools.AlignmentBlock;
+import htsjdk.samtools.Cigar;
+import htsjdk.samtools.CigarElement;
+import htsjdk.samtools.GenomicIndexUtil;
+import htsjdk.samtools.SAMFileHeader;
+import htsjdk.samtools.SAMFileSource;
+import htsjdk.samtools.SAMReadGroupRecord;
+import htsjdk.samtools.SAMValidationError;
+
 import java.util.List;
  
 /**
@@ -9,7 +18,7 @@ import java.util.List;
  *
  * @author nhomer
  */
-public interface ReadRecord {
+public interface ReadRecord2 {
     /**
      * Alignment score for a good alignment, but where computing a Phred-score is not feasible.
      */

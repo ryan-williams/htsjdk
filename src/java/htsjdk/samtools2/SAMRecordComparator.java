@@ -21,25 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package htsjdk.samtools;
+package htsjdk.samtools2;
+
+import java.util.Comparator;
 
 /**
- * Constants used in reading & writing BAM files
+ * Interface for comparators that define the various SAM sort orders.
  */
-public class BAMFileConstants {
-    /**
-     * The beginning of a BAMRecord is a fixed-size block of 8 int32s
-     */
-    static final int FIXED_BLOCK_SIZE = 8 * 4;
+public interface SAMRecordComparator extends Comparator<SAMRecord> {
 
     /**
-     * BAM file magic number.  This is what is present in the gunzipped version of the file,
-     * which never exists on disk.
+     * Less stringent compare method than the regular compare.  If the two records
+     * are equal enough that their ordering in a sorted SAM file would be arbitrary,
+     * this method returns 0.
+     * @return negative if samRecord1 < samRecord2,  0 if equal, else positive
      */
-
-    public static final byte[] BAM_MAGIC = "BAM\1".getBytes();
-    /**
-     * BAM index file magic number.
-     */
-    static final byte[] BAM_INDEX_MAGIC = "BAI\1".getBytes();
+    public int fileOrderCompare(SAMRecord samRecord1, SAMRecord samRecord2);
 }

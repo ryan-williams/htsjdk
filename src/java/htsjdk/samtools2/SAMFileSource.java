@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2009 The Broad Institute
+ * Copyright (c) 2010 The Broad Institute
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package htsjdk.samtools;
+package htsjdk.samtools2;
+
+import htsjdk.samtools.SAMFileSpan;
 
 /**
- * Constants used in reading & writing BAM files
+ * Represents the origin of a SAM record.
+ *
+ * @author mhanna
+ * @version 0.1
  */
-public class BAMFileConstants {
+public class SAMFileSource {
     /**
-     * The beginning of a BAMRecord is a fixed-size block of 8 int32s
+     * The reader originating this SAM record.
      */
-    static final int FIXED_BLOCK_SIZE = 8 * 4;
+    private SamReader mReader;
 
     /**
-     * BAM file magic number.  This is what is present in the gunzipped version of the file,
-     * which never exists on disk.
+     * The point on disk from which a record originates.
      */
+    private SAMFileSpan mFilePointer;
 
-    public static final byte[] BAM_MAGIC = "BAM\1".getBytes();
     /**
-     * BAM index file magic number.
+     * Create a new SAMFileSource with the given reader and file pointer.
+     * @param reader reader.
+     * @param filePointer File pointer.
      */
-    static final byte[] BAM_INDEX_MAGIC = "BAI\1".getBytes();
+    public SAMFileSource(final SamReader reader, final SAMFileSpan filePointer) {
+        this.mReader = reader;
+        this.mFilePointer = filePointer;
+    }
+
+    /**
+     * Retrieves the reader from which this read was initially retrieved.
+     * @return The reader.
+     */
+    public SamReader getReader() {
+        return mReader;
+    }
+
+    /**
+     * A pointer to the region on disk from which the read originated.
+     * @return A pointer within the file.
+     */
+    public SAMFileSpan getFilePointer() {
+        return mFilePointer;
+    }
 }

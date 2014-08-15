@@ -21,25 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package htsjdk.samtools;
+package htsjdk.samtools2;
+
+import java.io.Closeable;
+
+import htsjdk.samtools2.util.ProgressLoggerInterface;
 
 /**
- * Constants used in reading & writing BAM files
+ * Interface for SAMText and BAM file writers.  Clients need not care which they write to,
+ * once the object is constructed.
  */
-public class BAMFileConstants {
-    /**
-     * The beginning of a BAMRecord is a fixed-size block of 8 int32s
-     */
-    static final int FIXED_BLOCK_SIZE = 8 * 4;
+public interface SAMFileWriter extends Closeable {
+
+	void addAlignment(SAMRecord alignment);
+
+    SAMFileHeader getFileHeader();
+
+	/**
+	 * Sets a ProgressLogger on this writer. This is useful when pulling, for instance, from a
+	 * SortingCollection.
+	 */
+	void setProgressLogger(final ProgressLoggerInterface progress);
 
     /**
-     * BAM file magic number.  This is what is present in the gunzipped version of the file,
-     * which never exists on disk.
+     * Must be called to flush or file will likely be defective. 
      */
-
-    public static final byte[] BAM_MAGIC = "BAM\1".getBytes();
-    /**
-     * BAM index file magic number.
-     */
-    static final byte[] BAM_INDEX_MAGIC = "BAI\1".getBytes();
+    void close();
 }
