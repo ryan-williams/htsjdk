@@ -63,9 +63,18 @@ public class ProgressLogger implements ProgressLoggerInterface {
      */
     public ProgressLogger(final Log log) { this(log, 1000000); }
 
-    public synchronized boolean record(final String chrom, final int pos) {
-	    if (this.lastStartTime == -1) this.lastStartTime = System.currentTimeMillis();
-	    if (++this.processed % this.n == 0) {
+    public synchronized boolean record(final String chrom, final int pos, final int count) {
+        boolean doLogging = false;
+        if (this.lastStartTime == -1) this.lastStartTime = System.currentTimeMillis();
+
+
+        if (1 == count && 0 == (count+this.processed) % this.n)  doLogging = true;
+        else { // check if we crossed a multiple of this.n
+            long x = this.processed - (this.processed % this.n); // where were we the last time?
+            if (x + this.n <= this.processed + count) doLogging = true;
+        }
+        this.processed += count;
+        if (doLogging) {
             final long now = System.currentTimeMillis();
             final long lastPeriodSeconds = (now - this.lastStartTime) / 1000;
             this.lastStartTime = now;
@@ -80,12 +89,16 @@ public class ProgressLogger implements ProgressLoggerInterface {
             else readInfo = chrom + ":" + fmt.format(pos);
 
             log.info(this.verb, " ", processed, " " + noun + ".  Elapsed time: ", elapsed, "s.  Time for last ", fmt.format(this.n),
-                     ": ", period, "s.  Last read position: ", readInfo);
+                    ": ", period, "s.  Last read position: ", readInfo);
             return true;
         }
         else {
             return false;
         }
+    }
+
+    public synchronized boolean record(final String chrom, final int pos) {
+	    return record(chrom, pos, 1);
     }
 
     /**
