@@ -30,7 +30,7 @@ import htsjdk.samtools.SAMTag;
  */
 public class SAMRecordQueryNameComparator implements SAMRecordComparator {
 
-    public int compare(final SAMRecord samRecord1, final SAMRecord samRecord2) {
+    public int compare(final ReadRecord samRecord1, final ReadRecord samRecord2) {
         int cmp = fileOrderCompare(samRecord1, samRecord2);
         if (cmp != 0) {
             return cmp;
@@ -74,7 +74,7 @@ public class SAMRecordQueryNameComparator implements SAMRecordComparator {
      *
      * @return negative if samRecord1 < samRecord2,  0 if equal, else positive
      */
-    public int fileOrderCompare(final SAMRecord samRecord1, final SAMRecord samRecord2) {
+    public int fileOrderCompare(final ReadRecord samRecord1, final ReadRecord samRecord2) {
         return compareReadNames(samRecord1.getReadName(), samRecord2.getReadName());
     }
 

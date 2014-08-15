@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools2.filter;
 
-import htsjdk.samtools2.SAMRecord;
+import htsjdk.samtools2.ReadRecord;
 
 /**
  * API for filtering SAMRecords
@@ -39,7 +39,7 @@ public interface SamRecordFilter {
      *
      * @return true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(SAMRecord record);
+    public boolean filterOut(ReadRecord record);
 
     /**
      * Determines whether a pair of SAMRecords matches this filter
@@ -49,5 +49,5 @@ public interface SamRecordFilter {
      *
      * @return true if the pair of records matches filter, otherwise false
      */
-    public boolean filterOut(SAMRecord first, SAMRecord second);
+    public boolean filterOut(ReadRecord first, ReadRecord second);
 }

@@ -23,7 +23,8 @@
  */
 package htsjdk.samtools2.filter;
 
-import htsjdk.samtools2.SAMRecord;
+import htsjdk.samtools2.ReadRecord;
+
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public class AggregateFilter implements SamRecordFilter {
      * @param record    the SAMRecord to evaluate
      * @return  true if the SAMRecord matches at least one filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         for (final SamRecordFilter filter : filters) {
             if (filter.filterOut(record)) {
                 return true;
@@ -67,7 +68,7 @@ public class AggregateFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
          for (final SamRecordFilter filter : filters) {
             if (filter.filterOut(first, second)) {
                 return true;

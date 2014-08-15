@@ -1,6 +1,6 @@
 package htsjdk.samtools2.filter;
 
-import htsjdk.samtools2.SAMRecord;
+import htsjdk.samtools2.ReadRecord;
 
 /**
  * Filter out SAMRecords with NotPrimaryAlignment or Supplementary flag set
@@ -13,7 +13,7 @@ public class SecondaryOrSupplementaryFilter  implements SamRecordFilter {
      * @param record the SAMRecord to evaluate
      * @return true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         return record.isSecondaryOrSupplementary();
     }
 
@@ -25,7 +25,7 @@ public class SecondaryOrSupplementaryFilter  implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
         // if either fails, exclude them both
         return first.isSecondaryOrSupplementary() || second.isSecondaryOrSupplementary();
     }

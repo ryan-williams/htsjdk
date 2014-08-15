@@ -28,7 +28,7 @@ import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.CigarOperator;
 import htsjdk.samtools.SAMException;
-import htsjdk.samtools2.SAMRecord;
+import htsjdk.samtools2.ReadRecord;
 import htsjdk.samtools2.SAMSequenceDictionary;
 import htsjdk.samtools2.SAMSequenceRecord;
 import htsjdk.samtools.SAMTag;
@@ -254,12 +254,12 @@ public class SequenceUtil {
     }
 
     /** Calculates the number of mismatches between the read and the reference sequence provided. */
-    public static int countMismatches(final SAMRecord read, final byte[] referenceBases) {
+    public static int countMismatches(final ReadRecord read, final byte[] referenceBases) {
         return countMismatches(read, referenceBases, 0, false);
     }
 
     /** Calculates the number of mismatches between the read and the reference sequence provided. */
-    public static int countMismatches(final SAMRecord read, final byte[] referenceBases, final int referenceOffset) {
+    public static int countMismatches(final ReadRecord read, final byte[] referenceBases, final int referenceOffset) {
         return countMismatches(read, referenceBases, referenceOffset, false);
     }
 
@@ -274,7 +274,7 @@ public class SequenceUtil {
      *      and C->T on the positive strand and G->A on the negative strand will not be counted
      *      as mismatches.
      */
-    public static int countMismatches(final SAMRecord read, final byte[] referenceBases, final int referenceOffset,
+    public static int countMismatches(final ReadRecord read, final byte[] referenceBases, final int referenceOffset,
                                       final boolean bisulfiteSequence) {
         try {
             int mismatches = 0;
@@ -315,7 +315,7 @@ public class SequenceUtil {
      *      and C->T on the positive strand and G->A on the negative strand will not be counted
      *      as mismatches.
      */
-    public static int countMismatches(final SAMRecord read, final byte[] referenceBases, final boolean bisulfiteSequence) {
+    public static int countMismatches(final ReadRecord read, final byte[] referenceBases, final boolean bisulfiteSequence) {
         return countMismatches(read, referenceBases, 0, bisulfiteSequence);
     }
 
@@ -325,7 +325,7 @@ public class SequenceUtil {
      *
      * TODO: Remove this method when GATK map method is changed to take refseq as byte[].
      */
-    private static int countMismatches(final SAMRecord read, final char[] referenceBases, final int referenceOffset) {
+    private static int countMismatches(final ReadRecord read, final char[] referenceBases, final int referenceOffset) {
         int mismatches = 0;
 
         final byte[] readBases = read.getReadBases();
@@ -349,7 +349,7 @@ public class SequenceUtil {
      * @param referenceBases Array of ASCII bytes in which the 0th position in the array corresponds
      * to the first element of the reference sequence to which read is aligned. 
      */
-    public static int sumQualitiesOfMismatches(final SAMRecord read, final byte[] referenceBases) {
+    public static int sumQualitiesOfMismatches(final ReadRecord read, final byte[] referenceBases) {
         return sumQualitiesOfMismatches(read, referenceBases, 0, false);
     }
 
@@ -360,7 +360,7 @@ public class SequenceUtil {
      * @param referenceOffset 0-based offset of the first element of referenceBases relative to the start
      * of that reference sequence.
      */
-    public static int sumQualitiesOfMismatches(final SAMRecord read, final byte[] referenceBases,
+    public static int sumQualitiesOfMismatches(final ReadRecord read, final byte[] referenceBases,
                                                final int referenceOffset) {
         return sumQualitiesOfMismatches(read, referenceBases, referenceOffset, false);
     }
@@ -375,7 +375,7 @@ public class SequenceUtil {
      *      and C->T on the positive strand and G->A on the negative strand will not be counted
      *      as mismatches.
      */
-    public static int sumQualitiesOfMismatches(final SAMRecord read, final byte[] referenceBases,
+    public static int sumQualitiesOfMismatches(final ReadRecord read, final byte[] referenceBases,
                                                final int referenceOffset, final boolean bisulfiteSequence) {
         int qualities = 0;
 
@@ -417,7 +417,7 @@ public class SequenceUtil {
      *
      * TODO: Remove this method when GATK map method is changed to take refseq as byte[].
      */
-    public static int sumQualitiesOfMismatches(final SAMRecord read, final char[] referenceBases,
+    public static int sumQualitiesOfMismatches(final ReadRecord read, final char[] referenceBases,
                                                final int referenceOffset) {
         int qualities = 0;
 
@@ -460,11 +460,11 @@ public class SequenceUtil {
         return ret;
     }
 
-    public static int countInsertedBases(final SAMRecord read) {
+    public static int countInsertedBases(final ReadRecord read) {
         return countInsertedBases(read.getCigar());
     }
 
-    public static int countDeletedBases(final SAMRecord read) {
+    public static int countDeletedBases(final ReadRecord read) {
         return countDeletedBases(read.getCigar());
     }
 
@@ -472,7 +472,7 @@ public class SequenceUtil {
      * Calculates the for the predefined NM tag from the SAM spec. To the result of
      * countMismatches() it adds 1 for each indel.
      */
-    public static int calculateSamNmTag(final SAMRecord read, final byte[] referenceBases) {
+    public static int calculateSamNmTag(final ReadRecord read, final byte[] referenceBases) {
         return calculateSamNmTag(read, referenceBases, 0, false);
     }
 
@@ -483,7 +483,7 @@ public class SequenceUtil {
      * @param referenceOffset 0-based offset of the first element of referenceBases relative to the start
      * of that reference sequence.
      */
-    public static int calculateSamNmTag(final SAMRecord read, final byte[] referenceBases,
+    public static int calculateSamNmTag(final ReadRecord read, final byte[] referenceBases,
                                         final int referenceOffset) {
         return calculateSamNmTag(read, referenceBases, referenceOffset, false);
     }
@@ -498,7 +498,7 @@ public class SequenceUtil {
      *      and C->T on the positive strand and G->A on the negative strand will not be counted
      *      as mismatches.
      */
-    public static int calculateSamNmTag(final SAMRecord read, final byte[] referenceBases,
+    public static int calculateSamNmTag(final ReadRecord read, final byte[] referenceBases,
                                         final int referenceOffset, final boolean bisulfiteSequence) {
         int samNm = countMismatches(read, referenceBases, referenceOffset, bisulfiteSequence);
         for (final CigarElement el : read.getCigar().getCigarElements()) {
@@ -515,7 +515,7 @@ public class SequenceUtil {
      *
      * TODO: Remove this method when GATK map method is changed to take refseq as byte[].
      */
-    public static int calculateSamNmTag(final SAMRecord read, final char[] referenceBases,
+    public static int calculateSamNmTag(final ReadRecord read, final char[] referenceBases,
                                                final int referenceOffset) {
         int samNm = countMismatches(read, referenceBases, referenceOffset);
         for (final CigarElement el : read.getCigar().getCigarElements()) {
@@ -623,7 +623,7 @@ public class SequenceUtil {
      * '-'.  If the read is soft-clipped, reference contains '0'.  If there is a skipped region and
      * includeReferenceBasesForDeletions==true, reference will have Ns for the skipped region.
      */
-    public static byte[] makeReferenceFromAlignment(final SAMRecord rec, final boolean includeReferenceBasesForDeletions) {
+    public static byte[] makeReferenceFromAlignment(final ReadRecord rec, final boolean includeReferenceBasesForDeletions) {
         final String md = rec.getStringAttribute(SAMTag.MD.name());
         if (md == null) {
             throw new SAMException("Cannot create reference from SAMRecord with no MD tag, read: " + rec.getReadName());

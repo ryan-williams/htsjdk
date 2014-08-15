@@ -26,7 +26,7 @@ public class SAMFileTruncatedReader extends SAMFileReader {
             return i.hasNext() && max != currentRecord;
         }
 
-        public SAMRecord next() {
+        public ReadRecord next() {
             if (this.hasNext()) {
                 currentRecord += 1;
                 return i.next();

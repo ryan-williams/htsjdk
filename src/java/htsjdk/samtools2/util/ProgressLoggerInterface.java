@@ -24,7 +24,7 @@ package htsjdk.samtools2.util;
  * THE SOFTWARE.
  */
 
-import htsjdk.samtools2.SAMRecord;
+import htsjdk.samtools2.ReadRecord;
 
 /**
  * An interface defining the record() methods of the Picard-public ProgressLogger implementation.
@@ -32,7 +32,7 @@ import htsjdk.samtools2.SAMRecord;
 public interface ProgressLoggerInterface {
 
 	public boolean record(final String chrom, final int pos);
-	public boolean record(final SAMRecord rec);
-	public boolean record(final SAMRecord... recs);
+	public boolean record(final ReadRecord rec);
+	public boolean record(final ReadRecord... recs);
 
 }

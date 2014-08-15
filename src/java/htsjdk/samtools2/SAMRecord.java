@@ -89,57 +89,7 @@ import java.util.List;
  * @author alecw@broadinstitute.org
  * @author mishali.naik@intel.com
  */
-public class SAMRecord implements Cloneable
-{
-    /**
-     * Alignment score for a good alignment, but where computing a Phred-score is not feasible. 
-     */
-    public static final int UNKNOWN_MAPPING_QUALITY = 255;
-
-    /**
-     * Alignment score for an unaligned read.
-     */
-    public static final int NO_MAPPING_QUALITY = 0;
-
-    /**
-     * If a read has this reference name, it is unaligned, but not all unaligned reads have
-     * this reference name (see above).
-     */
-    public static final String NO_ALIGNMENT_REFERENCE_NAME = "*";
-
-    /**
-     * If a read has this reference index, it is unaligned, but not all unaligned reads have
-     * this reference index (see above).
-     */
-    public static final int NO_ALIGNMENT_REFERENCE_INDEX = -1;
-
-    /**
-     * Cigar string for an unaligned read.
-     */
-    public static final String NO_ALIGNMENT_CIGAR = "*";
-
-    /**
-     * If a read has reference name "*", it will have this value for position.
-     */
-    public static final int NO_ALIGNMENT_START = GenomicIndexUtil.UNSET_GENOMIC_LOCATION;
-
-    /**
-     * This should rarely be used, since a read with no sequence doesn't make much sense.
-     */
-    public static final byte[] NULL_SEQUENCE = new byte[0];
-
-    public static final String NULL_SEQUENCE_STRING = "*";
-
-    /**
-     * This should rarely be used, since all reads should have quality scores.
-     */
-    public static final byte[] NULL_QUALS = new byte[0];
-    public static final String NULL_QUALS_STRING = "*";
-
-    /**
-     * abs(insertSize) must be <= this
-     */
-    public static final int MAX_INSERT_SIZE = 1<<29;
+public class SAMRecord extends AbstractReadRecord {
 
     /**
      * It is not necessary in general to use the flag constants, because there are getters
@@ -190,6 +140,7 @@ public class SAMRecord implements Cloneable
         mHeader = header;
     }
 
+    @Override
     public String getReadName() {
         return mReadName;
     }
@@ -199,10 +150,12 @@ public class SAMRecord implements Cloneable
      * it may be faster.
      * @return length not including a null terminator.
      */
+    @Override
     public int getReadNameLength() {
         return mReadName.length();
     }
 
+    @Override
     public void setReadName(final String value) {
         mReadName = value;
     }
@@ -210,6 +163,7 @@ public class SAMRecord implements Cloneable
     /**
      * @return read sequence as a string of ACGTN=.
      */
+    @Override
     public String getReadString() {
         final byte[] readBases = getReadBases();
         if (readBases.length == 0) {
@@ -218,6 +172,7 @@ public class SAMRecord implements Cloneable
         return StringUtil.bytesToString(readBases);
     }
 
+    @Override
     public void setReadString(final String value) {
         if (NULL_SEQUENCE_STRING.equals(value)) {
             mReadBases = NULL_SEQUENCE;
@@ -234,10 +189,12 @@ public class SAMRecord implements Cloneable
      * byte[] and call setReadBases() or call setReadString().
      * @return read sequence as ASCII bytes ACGTN=.
      */
+    @Override
     public byte[] getReadBases() {
         return mReadBases;
     }
 
+    @Override
     public void setReadBases(final byte[] value) {
         mReadBases = value;
     }
@@ -246,6 +203,7 @@ public class SAMRecord implements Cloneable
      * This method is preferred over getReadBases().length, because for BAMRecord it may be faster.
      * @return number of bases in the read.
      */
+    @Override
     public int getReadLength() {
         return getReadBases().length;
     }
@@ -253,6 +211,7 @@ public class SAMRecord implements Cloneable
     /**
      * @return Base qualities, encoded as a FASTQ string.
      */
+    @Override
     public String getBaseQualityString() {
         if (Arrays.equals(NULL_QUALS, getBaseQualities())) {
             return NULL_QUALS_STRING;
@@ -260,6 +219,7 @@ public class SAMRecord implements Cloneable
         return SAMUtils.phredToFastq(getBaseQualities());
     }
 
+    @Override
     public void setBaseQualityString(final String value) {
         if (NULL_QUALS_STRING.equals(value)) {
             setBaseQualities(NULL_QUALS);
@@ -273,10 +233,12 @@ public class SAMRecord implements Cloneable
      * byte[] and call setBaseQualities() or call setBaseQualityString().
      * @return Base qualities, as binary phred scores (not ASCII).
      */
+    @Override
     public byte[] getBaseQualities() {
         return mBaseQualities;
     }
 
+    @Override
     public void setBaseQualities(final byte[] value) {
         mBaseQualities = value;
     }
@@ -285,6 +247,7 @@ public class SAMRecord implements Cloneable
      * If the original base quality scores have been store in the "OQ" tag will return the numeric
      * score as a byte[]
      */
+    @Override
     public byte[] getOriginalBaseQualities() {
         final String oqString = (String) getAttribute("OQ");
         if (oqString != null && oqString.length() > 0) {
@@ -299,6 +262,7 @@ public class SAMRecord implements Cloneable
      * Sets the original base quality scores into the "OQ" tag as a String.  Supplied value should be
      * as phred-scaled numeric qualities.
      */
+    @Override
     public void setOriginalBaseQualities(final byte[] oq) {
         setAttribute("OQ", SAMUtils.phredToFastq(oq));
     }
@@ -325,10 +289,12 @@ public class SAMRecord implements Cloneable
     /**
      * @return Reference name, or null if record has no reference.
      */
+    @Override
     public String getReferenceName() {
         return mReferenceName;
     }
 
+    @Override
     public void setReferenceName(final String value) {
         /* String.intern() is surprisingly expensive, so avoid it by looking up in sequence dictionary if possible */
         if (NO_ALIGNMENT_REFERENCE_NAME.equals(value)) {
@@ -351,6 +317,7 @@ public class SAMRecord implements Cloneable
      * @return index of the reference sequence for this read in the sequence dictionary, or -1
      * if read has no reference sequence set, or if a String reference name is not found in the sequence index..
      */
+    @Override
     public Integer getReferenceIndex() {
         if (mReferenceIndex == null) {
             if (mReferenceName == null) {
@@ -368,6 +335,7 @@ public class SAMRecord implements Cloneable
      * @param referenceIndex Must either equal -1 (indicating no reference), or exist in the sequence dictionary
      * in the header associated with this record.
      */
+    @Override
     public void setReferenceIndex(final int referenceIndex) {
         mReferenceIndex = referenceIndex;
         if (mReferenceIndex == NO_ALIGNMENT_REFERENCE_INDEX) {
@@ -384,10 +352,12 @@ public class SAMRecord implements Cloneable
     /**
      * @return Mate reference name, or null if one is not assigned.
      */
+    @Override
     public String getMateReferenceName() {
         return mMateReferenceName;
     }
 
+    @Override
     public void setMateReferenceName(final String mateReferenceName) {
         /* String.intern() is surprisingly expensive, so avoid it by looking up in sequence dictionary if possible */
         if (NO_ALIGNMENT_REFERENCE_NAME.equals(mateReferenceName)) {
@@ -410,6 +380,7 @@ public class SAMRecord implements Cloneable
      * @return index of the reference sequence for this read's mate in the sequence dictionary, or -1
      * if mate has no reference sequence set.
      */
+    @Override
     public Integer getMateReferenceIndex() {
         if (mMateReferenceIndex == null) {
             if (mMateReferenceName == null) {
@@ -427,6 +398,7 @@ public class SAMRecord implements Cloneable
      * @param referenceIndex Must either equal -1 (indicating no reference), or exist in the sequence dictionary
      * in the header associated with this record.
      */
+    @Override
     public void setMateReferenceIndex(final int referenceIndex) {
         mMateReferenceIndex = referenceIndex;
         if (mMateReferenceIndex == NO_ALIGNMENT_REFERENCE_INDEX) {
@@ -443,6 +415,7 @@ public class SAMRecord implements Cloneable
     /**
      * @return 1-based inclusive leftmost position of the clipped sequence, or 0 if there is no position.
      */
+    @Override
     public int getAlignmentStart() {
         return mAlignmentStart;
     }
@@ -450,6 +423,7 @@ public class SAMRecord implements Cloneable
     /**
      * @param value 1-based inclusive leftmost position of the clipped sequence, or 0 if there is no position.
      */
+    @Override
     public void setAlignmentStart(final int value) {
         mAlignmentStart = value;
         // Clear cached alignment end
@@ -461,6 +435,7 @@ public class SAMRecord implements Cloneable
     /**
      * @return 1-based inclusive rightmost position of the clipped sequence, or 0 read if unmapped.
      */
+    @Override
     public int getAlignmentEnd() {
         if (getReadUnmappedFlag()) {
             return NO_ALIGNMENT_START;
@@ -479,6 +454,7 @@ public class SAMRecord implements Cloneable
      *
      * Invalid to call on an unmapped read.
      */
+    @Override
     public int getUnclippedStart() {
         return SAMUtils.getUnclippedStart(getAlignmentStart(), getCigar());
     }
@@ -490,6 +466,7 @@ public class SAMRecord implements Cloneable
      *
      * Invalid to call on an unmapped read.
      */
+    @Override
     public int getUnclippedEnd() {
         return SAMUtils.getUnclippedEnd(getAlignmentEnd(), getCigar());
     }
@@ -506,6 +483,7 @@ public class SAMRecord implements Cloneable
      *         an offset of 4 returns reference position 4, an offset of 5 returns 0.
      * @offset 1-based location within the unclipped sequence
      */
+    @Override
     public int getReferencePositionAtReadPosition(final int offset) {
 
         if (offset == 0) return 0;
@@ -525,6 +503,7 @@ public class SAMRecord implements Cloneable
     /**
      * Unsupported.  This property is derived from alignment start and CIGAR. 
      */
+    @Override
     public void setAlignmentEnd(final int value) {
         throw new UnsupportedOperationException("Not supported: setAlignmentEnd");
     }
@@ -532,10 +511,12 @@ public class SAMRecord implements Cloneable
     /**
      * @return 1-based inclusive leftmost position of the clipped mate sequence, or 0 if there is no position.
      */
+    @Override
     public int getMateAlignmentStart() {
         return mMateAlignmentStart;
     }
 
+    @Override
     public void setMateAlignmentStart(final int mateAlignmentStart) {
         this.mMateAlignmentStart = mateAlignmentStart;
     }
@@ -544,10 +525,12 @@ public class SAMRecord implements Cloneable
      * @return insert size (difference btw 5' end of read & 5' end of mate), if possible, else 0.
      * Negative if mate maps to lower position than read.
      */
+    @Override
     public int getInferredInsertSize() {
         return mInferredInsertSize;
     }
 
+    @Override
     public void setInferredInsertSize(final int inferredInsertSize) {
         this.mInferredInsertSize = inferredInsertSize;
     }
@@ -555,14 +538,17 @@ public class SAMRecord implements Cloneable
     /**
      * @return phred scaled mapping quality.  255 implies valid mapping but quality is hard to compute.
      */
+    @Override
     public int getMappingQuality() {
         return mMappingQuality;
     }
 
+    @Override
     public void setMappingQuality(final int value) {
         mMappingQuality = value;
     }
 
+    @Override
     public String getCigarString() {
         if (mCigarString == null && getCigar() != null) {
             mCigarString = TextCigarCodec.getSingleton().encode(getCigar());
@@ -570,6 +556,7 @@ public class SAMRecord implements Cloneable
         return mCigarString;
     }
 
+    @Override
     public void setCigarString(final String value) {
         mCigarString = value;
         mCigar = null;
@@ -585,6 +572,7 @@ public class SAMRecord implements Cloneable
      * Cigar and call setCigar() or call setCigarString()
      * @return Cigar object for the read, or null if there is none.
      */
+    @Override
     public Cigar getCigar() {
         if (mCigar == null && mCigarString != null) {
             mCigar = TextCigarCodec.getSingleton().decode(mCigarString);
@@ -600,10 +588,12 @@ public class SAMRecord implements Cloneable
      * This method is preferred over getCigar().getNumElements(), because for BAMRecord it may be faster.
      * @return number of cigar elements (number + operator) in the cigar string.
      */
+    @Override
     public int getCigarLength() {
         return getCigar().numCigarElements();
     }
 
+    @Override
     public void setCigar(final Cigar cigar) {
         initializeCigar(cigar);
         // Change to cigar could change alignmentEnd, and thus indexing bin
@@ -630,6 +620,7 @@ public class SAMRecord implements Cloneable
      * @throws NullPointerException if this.getHeader() returns null.
      * @throws ClassCastException if RG tag does not have a String value.
      */
+    @Override
     public SAMReadGroupRecord getReadGroup() {
         final String rgId = (String)getAttribute(SAMTagUtil.getSingleton().RG);
         if (rgId == null) {
@@ -641,10 +632,12 @@ public class SAMRecord implements Cloneable
     /**
      * It is preferable to use the get*Flag() methods that handle the flag word symbolically.
      */
+    @Override
     public int getFlags() {
         return mFlags;
     }
 
+    @Override
     public void setFlags(final int value) {
         mFlags = value;
         // Could imply change to readUnmapped flag, which could change indexing bin
@@ -654,6 +647,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is paired in sequencing, no matter whether it is mapped in a pair.
      */
+    @Override
     public boolean getReadPairedFlag() {
         return (mFlags & READ_PAIRED_FLAG) != 0;
     }
@@ -667,6 +661,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is mapped in a proper pair (depends on the protocol, normally inferred during alignment).
      */
+    @Override
     public boolean getProperPairFlag() {
         requireReadPaired();
         return getProperPairFlagUnchecked();
@@ -679,6 +674,7 @@ public class SAMRecord implements Cloneable
     /**
      * the query sequence itself is unmapped.
      */
+    @Override
     public boolean getReadUnmappedFlag() {
         return (mFlags & READ_UNMAPPED_FLAG) != 0;
     }
@@ -686,6 +682,7 @@ public class SAMRecord implements Cloneable
     /**
      * the mate is unmapped.
      */
+    @Override
     public boolean getMateUnmappedFlag() {
         requireReadPaired();
         return getMateUnmappedFlagUnchecked();
@@ -698,6 +695,7 @@ public class SAMRecord implements Cloneable
     /**
      * strand of the query (false for forward; true for reverse strand).
      */
+    @Override
     public boolean getReadNegativeStrandFlag() {
         return (mFlags & READ_STRAND_FLAG) != 0;
     }
@@ -705,6 +703,7 @@ public class SAMRecord implements Cloneable
     /**
      * strand of the mate (false for forward; true for reverse strand).
      */
+    @Override
     public boolean getMateNegativeStrandFlag() {
         requireReadPaired();
         return getMateNegativeStrandFlagUnchecked();
@@ -717,6 +716,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is the first read in a pair.
      */
+    @Override
     public boolean getFirstOfPairFlag() {
         requireReadPaired();
         return getFirstOfPairFlagUnchecked();
@@ -729,6 +729,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is the second read in a pair.
      */
+    @Override
     public boolean getSecondOfPairFlag() {
         requireReadPaired();
         return getSecondOfPairFlagUnchecked();
@@ -741,6 +742,7 @@ public class SAMRecord implements Cloneable
     /**
      * the alignment is not primary (a read having split hits may have multiple primary alignment records).
      */
+    @Override
     public boolean getNotPrimaryAlignmentFlag() {
         return (mFlags & NOT_PRIMARY_ALIGNMENT_FLAG) != 0;
     }
@@ -748,6 +750,7 @@ public class SAMRecord implements Cloneable
     /**
      * the alignment is supplementary (TODO: further explanation?).
      */
+    @Override
     public boolean getSupplementaryAlignmentFlag() {
         return (mFlags & SUPPLEMENTARY_ALIGNMENT_FLAG) != 0;
     }
@@ -755,6 +758,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read fails platform/vendor quality checks.
      */
+    @Override
     public boolean getReadFailsVendorQualityCheckFlag() {
         return (mFlags & READ_FAILS_VENDOR_QUALITY_CHECK_FLAG) != 0;
     }
@@ -762,6 +766,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is either a PCR duplicate or an optical duplicate.
      */
+    @Override
     public boolean getDuplicateReadFlag() {
         return (mFlags & DUPLICATE_READ_FLAG) != 0;
     }
@@ -769,6 +774,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is paired in sequencing, no matter whether it is mapped in a pair.
      */
+    @Override
     public void setReadPairedFlag(final boolean flag) {
         setFlag(flag, READ_PAIRED_FLAG);
     }
@@ -776,6 +782,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is mapped in a proper pair (depends on the protocol, normally inferred during alignment).
      */
+    @Override
     public void setProperPairFlag(final boolean flag) {
         setFlag(flag, PROPER_PAIR_FLAG);
     }
@@ -785,6 +792,7 @@ public class SAMRecord implements Cloneable
      * Use setReadUnmappedFlag instead.
      * @deprecated
      */
+    @Override
     public void setReadUmappedFlag(final boolean flag) {
         setReadUnmappedFlag(flag);
     }
@@ -792,6 +800,7 @@ public class SAMRecord implements Cloneable
     /**
      * the query sequence itself is unmapped.
      */
+    @Override
     public void setReadUnmappedFlag(final boolean flag) {
         setFlag(flag, READ_UNMAPPED_FLAG);
         // Change to readUnmapped could change indexing bin
@@ -801,6 +810,7 @@ public class SAMRecord implements Cloneable
     /**
      * the mate is unmapped.
      */
+    @Override
     public void setMateUnmappedFlag(final boolean flag) {
         setFlag(flag, MATE_UNMAPPED_FLAG);
     }
@@ -808,6 +818,7 @@ public class SAMRecord implements Cloneable
     /**
      * strand of the query (false for forward; true for reverse strand).
      */
+    @Override
     public void setReadNegativeStrandFlag(final boolean flag) {
         setFlag(flag, READ_STRAND_FLAG);
     }
@@ -815,6 +826,7 @@ public class SAMRecord implements Cloneable
     /**
      * strand of the mate (false for forward; true for reverse strand).
      */
+    @Override
     public void setMateNegativeStrandFlag(final boolean flag) {
         setFlag(flag, MATE_STRAND_FLAG);
     }
@@ -822,6 +834,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is the first read in a pair.
      */
+    @Override
     public void setFirstOfPairFlag(final boolean flag) {
         setFlag(flag, FIRST_OF_PAIR_FLAG);
     }
@@ -829,6 +842,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is the second read in a pair.
      */
+    @Override
     public void setSecondOfPairFlag(final boolean flag) {
         setFlag(flag, SECOND_OF_PAIR_FLAG);
     }
@@ -836,6 +850,7 @@ public class SAMRecord implements Cloneable
     /**
      * the alignment is not primary (a read having split hits may have multiple primary alignment records).
      */
+    @Override
     public void setNotPrimaryAlignmentFlag(final boolean flag) {
         setFlag(flag, NOT_PRIMARY_ALIGNMENT_FLAG);
     }
@@ -843,6 +858,7 @@ public class SAMRecord implements Cloneable
     /**
      * the alignment is supplementary (TODO: further explanation?).
      */
+    @Override
     public void setSupplementaryAlignmentFlag(final boolean flag) {
         setFlag(flag, SUPPLEMENTARY_ALIGNMENT_FLAG);
     }
@@ -850,6 +866,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read fails platform/vendor quality checks.
      */
+    @Override
     public void setReadFailsVendorQualityCheckFlag(final boolean flag) {
         setFlag(flag, READ_FAILS_VENDOR_QUALITY_CHECK_FLAG);
     }
@@ -857,6 +874,7 @@ public class SAMRecord implements Cloneable
     /**
      * the read is either a PCR duplicate or an optical duplicate.
      */
+    @Override
     public void setDuplicateReadFlag(final boolean flag) {
         setFlag(flag, DUPLICATE_READ_FLAG);
     }
@@ -865,6 +883,7 @@ public class SAMRecord implements Cloneable
      * Tests if this record is either a secondary and/or supplementary alignment;
      * equivalent to {@code (getNotPrimaryAlignmentFlag() || getSupplementaryAlignmentFlag())}.
      */
+    @Override
     public boolean isSecondaryOrSupplementary() {
         return getNotPrimaryAlignmentFlag() || getSupplementaryAlignmentFlag();
     }
@@ -877,6 +896,7 @@ public class SAMRecord implements Cloneable
         }
     }
 
+    @Override
     public ValidationStringency getValidationStringency() {
         return mValidationStringency;
     }
@@ -884,6 +904,7 @@ public class SAMRecord implements Cloneable
     /**
      * Control validation of lazily-decoded elements.
      */
+    @Override
     public void setValidationStringency(final ValidationStringency validationStringency) {
         this.mValidationStringency = validationStringency;
     }
@@ -897,6 +918,7 @@ public class SAMRecord implements Cloneable
      * @param tag Two-character tag name.
      * @return Appropriately typed tag value, or null if the requested tag is not present.
      */
+    @Override
     public Object getAttribute(final String tag) {
         return getAttribute(SAMTagUtil.getSingleton().makeBinaryTag(tag));
     }
@@ -907,6 +929,7 @@ public class SAMRecord implements Cloneable
      * @return The value of a tag, converted into an Integer if possible.
      * @throws RuntimeException If the value is not an integer type, or will not fit in an Integer.
      */
+    @Override
     public Integer getIntegerAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -929,6 +952,7 @@ public class SAMRecord implements Cloneable
      * @return The value of a tag, converted into a Short if possible.
      * @throws RuntimeException If the value is not an integer type, or will not fit in a Short.
      */
+    @Override
     public Short getShortAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -951,6 +975,7 @@ public class SAMRecord implements Cloneable
      * @return The value of a tag, converted into a Byte if possible.
      * @throws RuntimeException If the value is not an integer type, or will not fit in a Byte.
      */
+    @Override
     public Byte getByteAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -967,6 +992,7 @@ public class SAMRecord implements Cloneable
         return (byte)longVal;
     }
 
+    @Override
     public String getStringAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -976,6 +1002,7 @@ public class SAMRecord implements Cloneable
         throw new SAMException("Value for tag " + tag + " is not a String: " + val.getClass());
     }
 
+    @Override
     public Character getCharacterAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -985,6 +1012,7 @@ public class SAMRecord implements Cloneable
         throw new SAMException("Value for tag " + tag + " is not a Character: " + val.getClass());
     }
 
+    @Override
     public Float getFloatAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -995,6 +1023,7 @@ public class SAMRecord implements Cloneable
     }
 
     /** Will work for signed byte array, unsigned byte array, or old-style hex array */
+    @Override
     public byte[] getByteArrayAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -1004,6 +1033,7 @@ public class SAMRecord implements Cloneable
         throw new SAMException("Value for tag " + tag + " is not a byte[]: " + val.getClass());
     }
 
+    @Override
     public byte[] getUnsignedByteArrayAttribute(final String tag) {
         final byte[] ret = getByteArrayAttribute(tag);
         if (ret != null) requireUnsigned(tag);
@@ -1011,12 +1041,14 @@ public class SAMRecord implements Cloneable
     }
 
     /** Will work for signed byte array or old-style hex array */
+    @Override
     public byte[] getSignedByteArrayAttribute(final String tag) {
         final byte[] ret = getByteArrayAttribute(tag);
         if (ret != null) requireSigned(tag);
         return ret;
     }
 
+    @Override
     public short[] getUnsignedShortArrayAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -1027,6 +1059,7 @@ public class SAMRecord implements Cloneable
         throw new SAMException("Value for tag " + tag + " is not a short[]: " + val.getClass());
     }
 
+    @Override
     public short[] getSignedShortArrayAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -1037,6 +1070,7 @@ public class SAMRecord implements Cloneable
         throw new SAMException("Value for tag " + tag + " is not a short[]: " + val.getClass());
     }
 
+    @Override
     public int[] getUnsignedIntArrayAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -1047,6 +1081,7 @@ public class SAMRecord implements Cloneable
         throw new SAMException("Value for tag " + tag + " is not a int[]: " + val.getClass());
     }
 
+    @Override
     public int[] getSignedIntArrayAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val == null) return null;
@@ -1057,6 +1092,7 @@ public class SAMRecord implements Cloneable
         throw new SAMException("Value for tag " + tag + " is not a int[]: " + val.getClass());
     }
 
+    @Override
     public float[] getFloatArrayAttribute(final String tag) {
         final Object val = getAttribute(tag);
         if (val != null && !(val instanceof float[])) {
@@ -1069,6 +1105,7 @@ public class SAMRecord implements Cloneable
      * @return True if this tag is an unsigned array, else false.
      * @throws SAMException if the tag is not present.
      */
+    @Override
     public boolean isUnsignedArrayAttribute(final String tag) {
         final SAMBinaryTagAndValue tmp = this.mAttributes.find(SAMTagUtil.getSingleton().makeBinaryTag(tag));
         if (tmp != null) return tmp.isUnsignedArray();
@@ -1087,6 +1124,7 @@ public class SAMRecord implements Cloneable
      * @see SAMRecord#getAttribute(java.lang.String)
      * @param tag Binary representation of a 2-char String tag as created by SAMTagUtil.
      */
+    @Override
     public Object getAttribute(final short tag) {
         if (this.mAttributes == null) return null;
         else {
@@ -1113,6 +1151,7 @@ public class SAMRecord implements Cloneable
      *
      * String values are not validated to ensure that they conform to SAM spec.
      */
+    @Override
     public void setAttribute(final String tag, final Object value) {
         if (value != null && value.getClass().isArray() && Array.getLength(value) == 0) {
             throw new IllegalArgumentException("Empty value passed for tag " + tag);
@@ -1126,6 +1165,7 @@ public class SAMRecord implements Cloneable
      * this method is the way to indicate that, e.g. a short array should be interpreted as unsigned shorts.
      * @param value must be one of byte[], short[], int[]
      */
+    @Override
     public void setUnsignedArrayAttribute(final String tag, final Object value) {
         if (!value.getClass().isArray()) {
             throw new IllegalArgumentException("Non-array passed to setUnsignedArrayAttribute for tag " + tag);
@@ -1177,6 +1217,7 @@ public class SAMRecord implements Cloneable
     /**
      * Removes all attributes.
      */
+    @Override
     public void clearAttributes() {
         mAttributes = null;
     }
@@ -1184,33 +1225,21 @@ public class SAMRecord implements Cloneable
     /**
      * Replace any existing attributes with the given linked item.
      */
-    protected void setAttributes(final SAMBinaryTagAndValue attributes) {
+    public void setAttributes(final SAMBinaryTagAndValue attributes) {
         mAttributes = attributes;
     }
 
     /**
      * @return Pointer to the first of the tags.  Returns null if there are no tags.
      */
-    protected SAMBinaryTagAndValue getBinaryAttributes() {
+    public SAMBinaryTagAndValue getBinaryAttributes() {
         return mAttributes;
-    }
-
-    /**
-     * Tag name and value of an attribute, for getAttributes() method.
-     */
-    public static class SAMTagAndValue {
-        public final String tag;
-        public final Object value;
-
-        public SAMTagAndValue(final String tag, final Object value) {
-            this.tag = tag;
-            this.value = value;
-        }
     }
 
     /**
      * @return list of {tag, value} tuples
      */
+    @Override
     public List<SAMTagAndValue> getAttributes() {
         SAMBinaryTagAndValue binaryAttributes = getBinaryAttributes();
         final List<SAMTagAndValue> ret = new ArrayList<SAMTagAndValue>();
@@ -1250,6 +1279,7 @@ public class SAMRecord implements Cloneable
         return GenomicIndexUtil.reg2bin(alignmentStart, alignmentEnd);
     }
 
+    @Override
     public SAMFileHeader getHeader() {
         return mHeader;
     }
@@ -1258,6 +1288,7 @@ public class SAMRecord implements Cloneable
      * Setting header into SAMRecord facilitates conversion btw reference sequence names and indices
      * @param header contains sequence dictionary for this SAMRecord
      */
+    @Override
     public void setHeader(final SAMFileHeader header) {
         this.mHeader = header;
     }
@@ -1268,6 +1299,7 @@ public class SAMRecord implements Cloneable
      * for BAMRecords that have not been eagerDecoded(), and for which none of the data in the variable-length
      * portion has been changed.
      */
+    @Override
     public byte[] getVariableBinaryRepresentation() {
         return null;
     }
@@ -1277,6 +1309,7 @@ public class SAMRecord implements Cloneable
      * computing them all.
      * @return binary file size of attribute, if known, else -1
      */
+    @Override
     public int getAttributesBinarySize() {
         return -1;
     }
@@ -1287,6 +1320,7 @@ public class SAMRecord implements Cloneable
      * @deprecated This method is not guaranteed to return a valid SAM text representation of the SAMRecord.
      * To get standard SAM text representation, use htsjdk.samtools.SAMRecord#getSAMString().
      */
+    @Override
     public String format() {
         final StringBuilder buffer = new StringBuilder();
         addField(buffer, getReadName(), null, null);
@@ -1370,6 +1404,7 @@ public class SAMRecord implements Cloneable
      * reference sequence. Note that clipped portions of the read and inserted and
      * deleted bases (vs. the reference) are not represented in the alignment blocks.
      */
+    @Override
     public List<AlignmentBlock> getAlignmentBlocks() {
         if (this.mAlignmentBlocks == null) {
             this.mAlignmentBlocks = SAMUtils.getAlignmentBlocks(getCigar(), getAlignmentStart(), "read cigar");
@@ -1383,6 +1418,7 @@ public class SAMRecord implements Cloneable
      * @param recordNumber For error reporting.  -1 if not known.
      * @return List of errors, or null if no errors.
      */
+    @Override
     public List<SAMValidationError> validateCigar(final long recordNumber) {
         List<SAMValidationError> ret = null;
 
@@ -1457,6 +1493,7 @@ public class SAMRecord implements Cloneable
      * are no validation errors, because callers tend to assume that if a non-null list is returned, it is modifiable.
      * @return null if valid.  If invalid, returns a list of error messages.
      */
+    @Override
     public List<SAMValidationError> isValid() {
         // ret is only instantiate if there are errors to report, in order to reduce GC in the typical case
         // in which everything is valid.  It's ugly, but more efficient.
@@ -1634,6 +1671,7 @@ public class SAMRecord implements Cloneable
      * whence it came. 
      * @return The file source.  Note that the reader will be null if not activated using SAMFileReader.enableFileSource().
      */
+    @Override
     public SAMFileSource getFileSource() {
         return mFileSource;
     }
@@ -1733,6 +1771,7 @@ public class SAMRecord implements Cloneable
      Returns the record in the SAM line-based text format.  Fields are
      separated by '\t' characters, and the String is terminated by '\n'.
      */
+    @Override
     public String getSAMString() {
         return SAMTextWriter.getSAMString(this);
     }

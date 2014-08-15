@@ -23,6 +23,7 @@
  */
 package htsjdk.samtools2.filter;
 
+import htsjdk.samtools2.ReadRecord;
 import htsjdk.samtools2.SAMFileHeader;
 import htsjdk.samtools2.SAMRecord;
 import htsjdk.samtools2.SAMRecordIterator;
@@ -42,12 +43,12 @@ import java.util.NoSuchElementException;
  *
  * @author Kathleen Tibbetts
  */
-public class FilteringIterator implements CloseableIterator<SAMRecord> {
+public class FilteringIterator implements CloseableIterator<ReadRecord> {
 
-    private final PeekableIterator<SAMRecord> iterator;
+    private final PeekableIterator<ReadRecord> iterator;
     private final SamRecordFilter filter;
     private boolean filterReadPairs = false;
-    private SAMRecord next = null;
+    private ReadRecord next = null;
 
     /**
      * Constructor
@@ -56,14 +57,14 @@ public class FilteringIterator implements CloseableIterator<SAMRecord> {
      * @param filter       the filter (which may be a FilterAggregator)
      * @param filterByPair if true, filter reads in pairs
      */
-    public FilteringIterator(final Iterator<SAMRecord> iterator, final SamRecordFilter filter,
+    public FilteringIterator(final Iterator<ReadRecord> iterator, final SamRecordFilter filter,
                              final boolean filterByPair) {
 
         if (filterByPair && iterator instanceof SAMRecordIterator) {
             ((SAMRecordIterator)iterator).assertSorted(SAMFileHeader.SortOrder.queryname);
         }
 
-        this.iterator = new PeekableIterator<SAMRecord>(iterator);
+        this.iterator = new PeekableIterator<ReadRecord>(iterator);
         this.filter = filter;
         this.filterReadPairs = filterByPair;
         next = getNextRecord();
@@ -75,8 +76,8 @@ public class FilteringIterator implements CloseableIterator<SAMRecord> {
      * @param iterator the backing iterator
      * @param filter   the filter (which may be a FilterAggregator)
      */
-    public FilteringIterator(final Iterator<SAMRecord> iterator, final SamRecordFilter filter) {
-        this.iterator = new PeekableIterator<SAMRecord>(iterator);
+    public FilteringIterator(final Iterator<ReadRecord> iterator, final SamRecordFilter filter) {
+        this.iterator = new PeekableIterator<ReadRecord>(iterator);
         this.filter = filter;
         next = getNextRecord();
     }
@@ -97,11 +98,11 @@ public class FilteringIterator implements CloseableIterator<SAMRecord> {
      * @throws java.util.NoSuchElementException
      *
      */
-    public SAMRecord next() {
+    public ReadRecord next() {
         if (next == null) {
             throw new NoSuchElementException("Iterator has no more elements.");
         }
-        final SAMRecord result = next;
+        final ReadRecord result = next;
         next = getNextRecord();
         return result;
     }
@@ -124,10 +125,10 @@ public class FilteringIterator implements CloseableIterator<SAMRecord> {
      *
      * @return SAMRecord    the next filter-passing record
      */
-    private SAMRecord getNextRecord() {
+    private ReadRecord getNextRecord() {
 
         while (iterator.hasNext()) {
-            final SAMRecord record = iterator.next();
+            final ReadRecord record = iterator.next();
 
             if (filterReadPairs && record.getReadPairedFlag() && record.getFirstOfPairFlag() &&
                 iterator.hasNext()) {

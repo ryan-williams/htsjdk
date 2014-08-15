@@ -39,7 +39,7 @@ package htsjdk.samtools2;
  *
  */
 public class SAMRecordCoordinateComparator implements SAMRecordComparator {
-    public int compare(final SAMRecord samRecord1, final SAMRecord samRecord2) {
+    public int compare(final ReadRecord samRecord1, final ReadRecord samRecord2) {
         int cmp = fileOrderCompare(samRecord1, samRecord2);
         if (cmp != 0) {
             return cmp;
@@ -78,7 +78,7 @@ public class SAMRecordCoordinateComparator implements SAMRecordComparator {
      *
      * @return negative if samRecord1 < samRecord2,  0 if equal, else positive
      */
-    public int fileOrderCompare(final SAMRecord samRecord1, final SAMRecord samRecord2) {
+    public int fileOrderCompare(final ReadRecord samRecord1, final ReadRecord samRecord2) {
         final int refIndex1 = samRecord1.getReferenceIndex();
         final int refIndex2 = samRecord2.getReferenceIndex();
         if (refIndex1 == -1) {

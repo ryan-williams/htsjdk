@@ -25,6 +25,7 @@ package htsjdk.samtools2.util;
 
 import htsjdk.samtools2.AlignmentBlock;
 import htsjdk.samtools.SAMException;
+import htsjdk.samtools2.ReadRecord;
 import htsjdk.samtools2.SAMFileHeader;
 import htsjdk.samtools2.SAMFileReader;
 import htsjdk.samtools2.SAMRecord;
@@ -44,8 +45,6 @@ import htsjdk.samtools.util.LocusImpl;
 import htsjdk.samtools.util.Log;
 import htsjdk.samtools.util.PeekableIterator;
 import htsjdk.samtools.util.ReferenceSequenceMask;
-import htsjdk.samtools2.util.SamRecordIntervalIteratorFactory;
-import htsjdk.samtools2.util.WholeGenomeReferenceSequenceMask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,10 +69,10 @@ public class SamLocusIterator implements Iterable<SamLocusIterator.LocusInfo>, C
      * A SAMRecord plus the zero-based offset in the read corresponding to the position in LocusInfo
      */
     public static class RecordAndOffset {
-        private final SAMRecord record;
+        private final ReadRecord record;
         private final int offset;
 
-        public RecordAndOffset(final SAMRecord record, final int offset) {
+        public RecordAndOffset(final ReadRecord record, final int offset) {
             this.offset = offset;
             this.record = record;
         }
@@ -85,7 +84,7 @@ public class SamLocusIterator implements Iterable<SamLocusIterator.LocusInfo>, C
             return offset;
         }
 
-        public SAMRecord getRecord() {
+        public ReadRecord getRecord() {
             return record;
         }
 
@@ -114,7 +113,7 @@ public class SamLocusIterator implements Iterable<SamLocusIterator.LocusInfo>, C
         /**
          * Accumulate info for one read at the locus.
          */
-        public void add(final SAMRecord read, final int position) {
+        public void add(final ReadRecord read, final int position) {
             recordAndOffsets.add(new RecordAndOffset(read, position));
         }
 
@@ -143,7 +142,7 @@ public class SamLocusIterator implements Iterable<SamLocusIterator.LocusInfo>, C
 
     private final SAMFileReader samReader;
     private final ReferenceSequenceMask referenceSequenceMask;
-    private PeekableIterator<SAMRecord> samIterator;
+    private PeekableIterator<ReadRecord> samIterator;
     private List<SamRecordFilter> samFilters = Arrays.asList(new SecondaryOrSupplementaryFilter(),
                                                              new DuplicateReadFilter());
     private final List<Interval> intervals;
@@ -229,7 +228,7 @@ public class SamLocusIterator implements Iterable<SamLocusIterator.LocusInfo>, C
         if (samIterator != null) {
             throw new IllegalStateException("Cannot call iterator() more than once on SamLocusIterator");
         }
-        CloseableIterator<SAMRecord> tempIterator;
+        CloseableIterator<ReadRecord> tempIterator;
         if (intervals != null) {
             tempIterator = new SamRecordIntervalIteratorFactory().makeSamRecordIntervalIterator(samReader, intervals, useIndex);
         } else {
@@ -238,7 +237,7 @@ public class SamLocusIterator implements Iterable<SamLocusIterator.LocusInfo>, C
         if (samFilters != null) {
             tempIterator = new FilteringIterator(tempIterator, new AggregateFilter(samFilters));
         }
-        samIterator = new PeekableIterator<SAMRecord>(tempIterator);
+        samIterator = new PeekableIterator<ReadRecord>(tempIterator);
         return this;
     }
 
@@ -291,7 +290,7 @@ public class SamLocusIterator implements Iterable<SamLocusIterator.LocusInfo>, C
 
         // if we don't have any completed entries to return, try and make some!
         while(complete.isEmpty() && samHasMore()) {
-            final SAMRecord rec = samIterator.peek();
+            final ReadRecord rec = samIterator.peek();
 
             // There might be unmapped reads mixed in with the mapped ones, but when a read
             // is encountered with no reference index it means that all the mapped reads have been seen.
@@ -368,7 +367,7 @@ public class SamLocusIterator implements Iterable<SamLocusIterator.LocusInfo>, C
      * Capture the loci covered by the given SAMRecord in the LocusInfos in the accumulator,
      * creating new LocusInfos as needed.
      */
-    private void accumulateSamRecord(final SAMRecord rec) {
+    private void accumulateSamRecord(final ReadRecord rec) {
         // interpret the CIGAR string and add the base info
         for(final AlignmentBlock alignmentBlock : rec.getAlignmentBlocks()) {
             for (int i = 0; i < alignmentBlock.getLength(); ++i) {

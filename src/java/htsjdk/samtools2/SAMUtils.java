@@ -23,27 +23,19 @@
  */
 package htsjdk.samtools2;
 
-import htsjdk.samtools2.AlignmentBlock;
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.CigarOperator;
-import htsjdk.samtools2.GenomicIndexUtil;
 import htsjdk.samtools.SAMException;
 import htsjdk.samtools.SAMFormatException;
-import htsjdk.samtools2.SAMHeaderRecordComparator;
-import htsjdk.samtools2.SAMProgramRecord;
-import htsjdk.samtools2.SAMReadGroupRecord;
-import htsjdk.samtools2.SAMSequenceRecord;
 import htsjdk.samtools.SAMTag;
 import htsjdk.samtools.SAMValidationError;
 import htsjdk.samtools.TextCigarCodec;
 import htsjdk.samtools.ValidationStringency;
 import htsjdk.samtools.util.CoordMath;
-import htsjdk.samtools.util.RuntimeEOFException;
 import htsjdk.samtools.util.StringUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -581,10 +573,10 @@ public final class SAMUtils
             rec.setReadNegativeStrandFlag(false);
         }
         rec.setDuplicateReadFlag(false);
-        rec.setReferenceIndex(SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX);
-        rec.setAlignmentStart(SAMRecord.NO_ALIGNMENT_START);
-        rec.setCigarString(SAMRecord.NO_ALIGNMENT_CIGAR);
-        rec.setMappingQuality(SAMRecord.NO_MAPPING_QUALITY);
+        rec.setReferenceIndex(ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX);
+        rec.setAlignmentStart(ReadRecord.NO_ALIGNMENT_START);
+        rec.setCigarString(ReadRecord.NO_ALIGNMENT_CIGAR);
+        rec.setMappingQuality(ReadRecord.NO_MAPPING_QUALITY);
         rec.setInferredInsertSize(0);
         rec.setNotPrimaryAlignmentFlag(false);
         rec.setProperPairFlag(false);
@@ -609,7 +601,7 @@ public final class SAMUtils
      * Tests if the provided record is mapped entirely beyond the end of the reference (i.e., the alignment start is greater than the
      * length of the sequence to which the record is mapped).
      */
-    public static boolean recordMapsEntirelyBeyondEndOfReference(final SAMRecord record) {
+    public static boolean recordMapsEntirelyBeyondEndOfReference(final ReadRecord record) {
         return record.getHeader().getSequence(record.getReferenceIndex()).getSequenceLength() < record.getAlignmentStart();
     }
     
@@ -755,7 +747,7 @@ public final class SAMUtils
      * @param rec the SAM record
      * @return Mate Cigar String, or null if there is none.
      */
-    public static String getMateCigarString(final SAMRecord rec) {
+    public static String getMateCigarString(final ReadRecord rec) {
         return rec.getStringAttribute(SAMTag.MC.name());
     }
 
@@ -765,7 +757,7 @@ public final class SAMUtils
      * @param withValidation true if we are to validate the mate cigar before returning, false otherwise.
      * @return Cigar object for the read's mate, or null if there is none.
      */
-    public static Cigar getMateCigar(final SAMRecord rec, final boolean withValidation) {
+    public static Cigar getMateCigar(final ReadRecord rec, final boolean withValidation) {
         final String mateCigarString = getMateCigarString(rec);
         Cigar mateCigar = null;
         if (mateCigarString != null) {
@@ -783,7 +775,7 @@ public final class SAMUtils
      * @param rec the SAM record
      * @return Cigar object for the read's mate, or null if there is none.
      */
-    public static Cigar getMateCigar(final SAMRecord rec) {
+    public static Cigar getMateCigar(final ReadRecord rec) {
         return getMateCigar(rec, false);
     }
 
@@ -791,7 +783,7 @@ public final class SAMUtils
      * @param rec the SAM record
      * @return number of cigar elements (number + operator) in the mate cigar string.
      */
-    public static int getMateCigarLength(final SAMRecord rec) {
+    public static int getMateCigarLength(final ReadRecord rec) {
         final Cigar mateCigar = getMateCigar(rec);
         return (mateCigar != null) ? mateCigar.numCigarElements() : 0;
     }
@@ -801,7 +793,7 @@ public final class SAMUtils
      * @param rec the SAM record
      * @return 1-based inclusive rightmost position of the clipped mate sequence, or 0 read if unmapped.
      */
-    public static int getMateAlignmentEnd(final SAMRecord rec) {
+    public static int getMateAlignmentEnd(final ReadRecord rec) {
         if (rec.getMateUnmappedFlag()) {
             throw new RuntimeException("getMateAlignmentEnd called on an unmapped mate.");
         }
@@ -820,7 +812,7 @@ public final class SAMUtils
      *
      * Invalid to call on an unmapped read.
      */
-    public static int getMateUnclippedStart(final SAMRecord rec) {
+    public static int getMateUnclippedStart(final ReadRecord rec) {
         if (rec.getMateUnmappedFlag())
             throw new RuntimeException("getMateUnclippedStart called on an unmapped mate.");
         final Cigar mateCigar = getMateCigar(rec);
@@ -839,7 +831,7 @@ public final class SAMUtils
      *
      * Invalid to call on an unmapped read.
      */
-    public static int getMateUnclippedEnd(final SAMRecord rec) {
+    public static int getMateUnclippedEnd(final ReadRecord rec) {
         if (rec.getMateUnmappedFlag()) {
             throw new RuntimeException("getMateUnclippedEnd called on an unmapped mate.");
         }
@@ -856,7 +848,7 @@ public final class SAMUtils
      * reference sequence. Note that clipped portions of the mate and inserted and
      * deleted bases (vs. the reference) are not represented in the alignment blocks.
      */
-    public static List<AlignmentBlock> getMateAlignmentBlocks(final SAMRecord rec) {
+    public static List<AlignmentBlock> getMateAlignmentBlocks(final ReadRecord rec) {
         return getAlignmentBlocks(getMateCigar(rec), rec.getMateAlignmentStart(), "mate cigar");
     }
 
@@ -872,7 +864,7 @@ public final class SAMUtils
      * @return List of errors, or null if no errors.
      */
 
-    public static List<SAMValidationError> validateCigar(final SAMRecord rec,
+    public static List<SAMValidationError> validateCigar(final ReadRecord rec,
                                                   final Cigar cigar,
                                                    final Integer referenceIndex,
                                                    final List<AlignmentBlock> alignmentBlocks,
@@ -880,7 +872,7 @@ public final class SAMUtils
                                                    final String cigarTypeName) {
         // Don't know line number, and don't want to force read name to be decoded.
         List<SAMValidationError> ret = cigar.isValid(rec.getReadName(), recordNumber);
-        if (referenceIndex != SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+        if (referenceIndex != ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
             final SAMSequenceRecord sequence = rec.getHeader().getSequence(referenceIndex);
             final int referenceSequenceLength = sequence.getSequenceLength();
             for (final AlignmentBlock alignmentBlock : alignmentBlocks) {
@@ -902,7 +894,7 @@ public final class SAMUtils
      * @param recordNumber For error reporting.  -1 if not known.
      * @return List of errors, or null if no errors.
      */
-    public static List<SAMValidationError> validateMateCigar(final SAMRecord rec, final long recordNumber) {
+    public static List<SAMValidationError> validateMateCigar(final ReadRecord rec, final long recordNumber) {
         List<SAMValidationError> ret = null;
 
         if (rec.getValidationStringency() != ValidationStringency.SILENT) {
@@ -936,7 +928,7 @@ public final class SAMUtils
      * @param rec
      * @return
      */
-    public static boolean hasMateCigar(SAMRecord rec) {
+    public static boolean hasMateCigar(ReadRecord rec) {
         // NB: use getMateCigarString rather than getMateCigar to avoid validation.
         return (rec.getReadPairedFlag() && !rec.getMateUnmappedFlag() && null != SAMUtils.getMateCigarString(rec));
     }

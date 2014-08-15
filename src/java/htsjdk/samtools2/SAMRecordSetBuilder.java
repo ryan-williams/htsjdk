@@ -25,12 +25,6 @@ package htsjdk.samtools2;
 
 
 import htsjdk.samtools.SAMException;
-import htsjdk.samtools2.SAMFileWriter;
-import htsjdk.samtools.SAMFileWriterFactory;
-import htsjdk.samtools2.SAMProgramRecord;
-import htsjdk.samtools2.SAMReadGroupRecord;
-import htsjdk.samtools2.SAMSequenceDictionary;
-import htsjdk.samtools2.SAMSequenceRecord;
 import htsjdk.samtools.SAMTag;
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.samtools.util.CoordMath;
@@ -57,7 +51,7 @@ import java.util.TreeSet;
  *
  * @author Tim Fennell
  */
-public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
+public class SAMRecordSetBuilder implements Iterable<ReadRecord> {
     private static final String[] chroms = {
             "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10",
             "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20",
@@ -69,7 +63,7 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
     private final Random random = new Random();
 
     private final SAMFileHeader header;
-    private final Collection<SAMRecord> records;
+    private final Collection<ReadRecord> records;
 
     private int readLength = 36 ;
 
@@ -117,9 +111,9 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
             } else {
                 comparator = new SAMRecordCoordinateComparator();
             }
-            this.records = new TreeSet<SAMRecord>(comparator);
+            this.records = new TreeSet<ReadRecord>(comparator);
         } else {
-            this.records = new ArrayList<SAMRecord>();
+            this.records = new ArrayList<ReadRecord>();
         }
 
         if (addReadGroup) {
@@ -161,15 +155,15 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
     }
 
     /** Returns the accumulated list of sam records. */
-    public Collection<SAMRecord> getRecords() { return this.records; }
+    public Collection<ReadRecord> getRecords() { return this.records; }
 
     /** Returns a CloseableIterator over the collection of SAMRecords. */
-    public CloseableIterator<SAMRecord> iterator() {
-        return new CloseableIterator<SAMRecord>() {
-            private final Iterator<SAMRecord> iterator = records.iterator();
+    public CloseableIterator<ReadRecord> iterator() {
+        return new CloseableIterator<ReadRecord>() {
+            private final Iterator<ReadRecord> iterator = records.iterator();
             public void close() { /** Do nothing. */  }
             public boolean hasNext() { return this.iterator.hasNext(); }
-            public SAMRecord next() { return this.iterator.next(); }
+            public ReadRecord next() { return this.iterator.next(); }
             public void remove() { this.iterator.remove(); }
         };
     }
@@ -179,10 +173,10 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
      * cigar string, quality string or default quality score.  This does not modify the flag field, which should be updated
      * if desired before adding the return to the list of records.
      */
-    private SAMRecord createReadNoFlag(final String name, final int contig, final int start, final boolean negativeStrand,
+    private ReadRecord createReadNoFlag(final String name, final int contig, final int start, final boolean negativeStrand,
                                        final boolean recordUnmapped, final String cigar, final String qualityString,
                                        final int defaultQuality) throws SAMException {
-        final SAMRecord rec = new SAMRecord(this.header);
+        final ReadRecord rec = new SAMRecord(this.header);
         rec.setReadName(name);
         if (chroms.length <= contig) {
             throw new SAMException("Contig too big [" + chroms.length + " < " + contig);
@@ -231,10 +225,10 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
      * Adds a fragment record (mapped or unmapped) to the set using the provided contig start and optionally the strand,
      * cigar string, quality string or default quality score.
      */
-    public SAMRecord addFrag(final String name, final int contig, final int start, final boolean negativeStrand,
+    public ReadRecord addFrag(final String name, final int contig, final int start, final boolean negativeStrand,
                              final boolean recordUnmapped, final String cigar, final String qualityString,
                              final int defaultQuality) throws SAMException {
-        final SAMRecord rec = createReadNoFlag(name, contig, start, negativeStrand, recordUnmapped, cigar, qualityString, defaultQuality);
+        final ReadRecord rec = createReadNoFlag(name, contig, start, negativeStrand, recordUnmapped, cigar, qualityString, defaultQuality);
         this.records.add(rec);
         return rec;
     }
@@ -244,7 +238,7 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
      * is set to -1. Otherwise all qualities will be set to defaultQuality. If a quality string is provided that string
      * will be used instead of the defaultQuality.
      */
-    private void fillInBasesAndQualities(final SAMRecord rec, final String qualityString, final int defaultQuality) {
+    private void fillInBasesAndQualities(final ReadRecord rec, final String qualityString, final int defaultQuality) {
 
         if (null == qualityString) {
             fillInBasesAndQualities(rec, defaultQuality);
@@ -257,7 +251,7 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
     /**
      * Randomly fills in the bases for the given record.
      */
-    private void fillInBases(final SAMRecord rec){
+    private void fillInBases(final ReadRecord rec){
         final int length = this.readLength;
         final byte[] bases = new byte[length];
 
@@ -282,8 +276,8 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
      * formed pair sitting on a single contig.
      */
     public void addPair(final String name, final int contig, final int start1, final int start2) {
-        final SAMRecord end1 = new SAMRecord(this.header);
-        final SAMRecord end2 = new SAMRecord(this.header);
+        final ReadRecord end1 = new SAMRecord(this.header);
+        final ReadRecord end2 = new SAMRecord(this.header);
         final boolean end1IsFirstOfPair = this.random.nextBoolean();
 
         end1.setReadName(name);
@@ -342,13 +336,13 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
      * Adds a pair of records (mapped or unmmapped) to the set using the provided contig starts.
      * The pair is assumed to be a well formed pair sitting on a single contig.
      */
-    public List<SAMRecord> addPair(final String name, final int contig, final int start1, final int start2,
+    public List<ReadRecord> addPair(final String name, final int contig, final int start1, final int start2,
                                    final boolean record1Unmapped, final boolean record2Unmapped, final String cigar1,
                                    final String cigar2, final boolean strand1, final boolean strand2, final int defaultQuality) {
-        final List<SAMRecord> recordsList = new LinkedList<SAMRecord>();
+        final List<ReadRecord> recordsList = new LinkedList<ReadRecord>();
 
-        final SAMRecord end1 = createReadNoFlag(name, contig, start1, strand1, record1Unmapped, cigar1, null, defaultQuality);
-        final SAMRecord end2 = createReadNoFlag(name, contig, start2, strand2, record2Unmapped, cigar2, null, defaultQuality);
+        final ReadRecord end1 = createReadNoFlag(name, contig, start1, strand1, record1Unmapped, cigar1, null, defaultQuality);
+        final ReadRecord end2 = createReadNoFlag(name, contig, start2, strand2, record2Unmapped, cigar2, null, defaultQuality);
 
         end1.setReadPairedFlag(true);
         end1.setFirstOfPairFlag(true);
@@ -376,8 +370,8 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
      * Adds a pair with both ends unmapped to the builder.
      */
     public void addUnmappedPair(final String name) {
-        final SAMRecord end1 = new SAMRecord(this.header);
-        final SAMRecord end2 = new SAMRecord(this.header);
+        final ReadRecord end1 = new SAMRecord(this.header);
+        final ReadRecord end2 = new SAMRecord(this.header);
         final boolean end1IsFirstOfPair = this.random.nextBoolean();
 
         end1.setReadName(name);
@@ -414,7 +408,7 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
      * Fills in bases and qualities with randomly generated data.
      * Relies on the alignment start and end having been set to get read length.
      */
-    private void fillInBasesAndQualities(final SAMRecord rec) {
+    private void fillInBasesAndQualities(final ReadRecord rec) {
         fillInBasesAndQualities(rec, -1);
     }
 
@@ -423,7 +417,7 @@ public class SAMRecordSetBuilder implements Iterable<SAMRecord> {
      * be randomly generated.
      * Relies on the alignment start and end having been set to get read length.
      */
-    private void fillInBasesAndQualities(final SAMRecord rec, final int defaultQuality) {
+    private void fillInBasesAndQualities(final ReadRecord rec, final int defaultQuality) {
         final int length = this.readLength;
         final byte[] quals = new byte[length];
 

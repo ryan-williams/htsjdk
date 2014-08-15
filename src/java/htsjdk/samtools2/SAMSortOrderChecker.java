@@ -29,7 +29,7 @@ package htsjdk.samtools2;
  */
 public class SAMSortOrderChecker {
     private final SAMFileHeader.SortOrder sortOrder;
-    private SAMRecord prev;
+    private ReadRecord prev;
     private final SAMRecordComparator comparator;
 
     public SAMSortOrderChecker(final SAMFileHeader.SortOrder sortOrder) {
@@ -52,7 +52,7 @@ public class SAMSortOrderChecker {
      * Check if given SAMRecord violates sort order relative to previous SAMRecord.
      * @return True if sort order is unsorted, if this is the first record, or if previous <= rec.
      */
-    public boolean isSorted(final SAMRecord rec) {
+    public boolean isSorted(final ReadRecord rec) {
         if (comparator == null) {
             return true;
         }
@@ -64,14 +64,14 @@ public class SAMSortOrderChecker {
         return ret;
     }
 
-    public SAMRecord getPreviousRecord() {
+    public ReadRecord getPreviousRecord() {
         return prev;
     }
 
     /**
      * Return the sort key used for the given sort order.  Useful in error messages.
      */
-    public String getSortKey(final SAMRecord rec) {
+    public String getSortKey(final ReadRecord rec) {
         switch (sortOrder) {
 
             case coordinate:
