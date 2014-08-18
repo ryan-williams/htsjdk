@@ -36,8 +36,8 @@ public class SAMRecordQueryNameComparator implements SAMRecordComparator {
             return cmp;
         }
 
-        final boolean r1Paired = samRecord1.getReadPairedFlag();
-        final boolean r2Paired = samRecord2.getReadPairedFlag();
+        final boolean r1Paired = samRecord1.isPaired();
+        final boolean r2Paired = samRecord2.isPaired();
 
         if (r1Paired || r2Paired) {
             if (!r1Paired) return 1;

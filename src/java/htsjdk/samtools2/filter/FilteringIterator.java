@@ -25,7 +25,6 @@ package htsjdk.samtools2.filter;
 
 import htsjdk.samtools2.ReadRecord;
 import htsjdk.samtools2.SAMFileHeader;
-import htsjdk.samtools2.SAMRecord;
 import htsjdk.samtools2.SAMRecordIterator;
 import htsjdk.samtools2.SamPairUtil;
 import htsjdk.samtools.util.CloseableIterator;
@@ -130,7 +129,7 @@ public class FilteringIterator implements CloseableIterator<ReadRecord> {
         while (iterator.hasNext()) {
             final ReadRecord record = iterator.next();
 
-            if (filterReadPairs && record.getReadPairedFlag() && record.getFirstOfPairFlag() &&
+            if (filterReadPairs && record.isPaired() && record.getFirstOfPairFlag() &&
                 iterator.hasNext()) {
 
                 SamPairUtil.assertMate(record, iterator.peek());
@@ -141,7 +140,7 @@ public class FilteringIterator implements CloseableIterator<ReadRecord> {
                 } else {
                     return record;
                 }
-            } else if (filterReadPairs && record.getReadPairedFlag() &&
+            } else if (filterReadPairs && record.isPaired() &&
                 record.getSecondOfPairFlag()) {
                 // assume that we did a filterOut(first, second) and it passed the filter
                 return record;

@@ -898,7 +898,7 @@ public final class SAMUtils
         List<SAMValidationError> ret = null;
 
         if (rec.getValidationStringency() != ValidationStringency.SILENT) {
-            if (rec.getReadPairedFlag() && !rec.getMateUnmappedFlag()) {      // The mateCigar will be defined if the mate is mapped
+            if (rec.isPaired() && !rec.getMateUnmappedFlag()) {      // The mateCigar will be defined if the mate is mapped
                 if (getMateCigarString(rec) != null) {
                     ret = SAMUtils.validateCigar(rec, getMateCigar(rec), rec.getMateReferenceIndex(), getMateAlignmentBlocks(rec), recordNumber, "Mate CIGAR");
                 }
@@ -930,6 +930,6 @@ public final class SAMUtils
      */
     public static boolean hasMateCigar(ReadRecord rec) {
         // NB: use getMateCigarString rather than getMateCigar to avoid validation.
-        return (rec.getReadPairedFlag() && !rec.getMateUnmappedFlag() && null != SAMUtils.getMateCigarString(rec));
+        return (rec.isPaired() && !rec.getMateUnmappedFlag() && null != SAMUtils.getMateCigarString(rec));
     }
 }

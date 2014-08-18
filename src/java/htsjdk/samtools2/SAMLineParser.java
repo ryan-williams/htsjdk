@@ -270,11 +270,11 @@ public class SAMLineParser {
 
         String mateRName = mFields[MRNM_COL];
         if (mateRName.equals("*")) {
-            if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag()) {
+            if (samRecord.isPaired() && !samRecord.getMateUnmappedFlag()) {
                 reportErrorParsingLine("MRNM not specified but flags indicate mate mapped");
             }
         } else {
-            if (!samRecord.getReadPairedFlag()) {
+            if (!samRecord.isPaired()) {
                 reportErrorParsingLine("MRNM specified but flags indicate unpaired");
             }
             if (!"=".equals(mateRName)) {

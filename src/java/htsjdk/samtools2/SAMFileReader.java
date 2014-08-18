@@ -580,7 +580,7 @@ public class SAMFileReader implements SamReader, SamReader.Indexing {
      * @return rec's mate, or null if it cannot be found.
      */
     public ReadRecord queryMate(final ReadRecord rec) {
-        if (!rec.getReadPairedFlag()) {
+        if (!rec.isPaired()) {
             throw new IllegalArgumentException("queryMate called for unpaired read.");
         }
         if (rec.getFirstOfPairFlag() == rec.getSecondOfPairFlag()) {
@@ -597,7 +597,7 @@ public class SAMFileReader implements SamReader, SamReader.Indexing {
             ReadRecord mateRec = null;
             while (it.hasNext()) {
                 final ReadRecord next = it.next();
-                if (!next.getReadPairedFlag()) {
+                if (!next.isPaired()) {
                     if (rec.getReadName().equals(next.getReadName())) {
                         throw new SAMFormatException("Paired and unpaired reads with same name: " + rec.getReadName());
                     }

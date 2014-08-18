@@ -371,7 +371,7 @@ public interface SamReader extends Iterable<ReadRecord>, Closeable {
 
         @Override
         public ReadRecord queryMate(final ReadRecord rec) {
-            if (!rec.getReadPairedFlag()) {
+            if (!rec.isPaired()) {
                 throw new IllegalArgumentException("queryMate called for unpaired read.");
             }
             if (rec.getFirstOfPairFlag() == rec.getSecondOfPairFlag()) {
@@ -388,7 +388,7 @@ public interface SamReader extends Iterable<ReadRecord>, Closeable {
                 ReadRecord mateRec = null;
                 while (it.hasNext()) {
                     final ReadRecord next = it.next();
-                    if (!next.getReadPairedFlag()) {
+                    if (!next.isPaired()) {
                         if (rec.getReadName().equals(next.getReadName())) {
                             throw new SAMFormatException("Paired and unpaired reads with same name: " + rec.getReadName());
                         }

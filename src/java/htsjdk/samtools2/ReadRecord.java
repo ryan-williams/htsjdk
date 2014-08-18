@@ -139,7 +139,7 @@ public interface ReadRecord extends Cloneable {
 
     void setFlags(int value);
 
-    boolean getReadPairedFlag();
+    boolean isPaired();
 
     boolean getProperPairFlag();
 

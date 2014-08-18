@@ -65,7 +65,7 @@ public class SamPairUtil {
     {
         final boolean readIsOnReverseStrand = r.getReadNegativeStrandFlag();
 
-        if(r.getReadUnmappedFlag() || !r.getReadPairedFlag() || r.getMateUnmappedFlag()) {
+        if(r.getReadUnmappedFlag() || !r.isPaired() || r.getMateUnmappedFlag()) {
             throw new IllegalArgumentException("Invalid SAMRecord: " + r.getReadName() + ". This method only works for SAMRecords " +
                     "that are paired reads with both reads aligned.");
         }
@@ -119,10 +119,10 @@ public class SamPairUtil {
         } else if (secondOfPair == null) {
             throw new SAMException(
                     firstOfPair.toString() + " is missing its mate");
-        } else if (!firstOfPair.getReadPairedFlag()) {
+        } else if (!firstOfPair.isPaired()) {
             throw new SAMException(
                     "First record is not marked as paired: " + firstOfPair.toString());
-        } else if (!secondOfPair.getReadPairedFlag()) {
+        } else if (!secondOfPair.isPaired()) {
             throw new SAMException(
                     "Second record is not marked as paired: " + secondOfPair.toString());
         } else if (!firstOfPair.getFirstOfPairFlag()) {

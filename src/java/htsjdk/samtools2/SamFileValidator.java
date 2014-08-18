@@ -469,7 +469,7 @@ public class SamFileValidator {
     }
 
     private void validateMateFields(final ReadRecord record, final long recordNumber) {
-        if (!record.getReadPairedFlag() || record.isSecondaryOrSupplementary()) {
+        if (!record.isPaired() || record.isSecondaryOrSupplementary()) {
             return;
         }
         validateMateCigar(record, recordNumber);

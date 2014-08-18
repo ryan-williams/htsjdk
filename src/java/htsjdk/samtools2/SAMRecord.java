@@ -648,12 +648,12 @@ public class SAMRecord extends AbstractReadRecord {
      * the read is paired in sequencing, no matter whether it is mapped in a pair.
      */
     @Override
-    public boolean getReadPairedFlag() {
+    public boolean isPaired() {
         return (mFlags & READ_PAIRED_FLAG) != 0;
     }
 
     private void requireReadPaired() {
-        if (!getReadPairedFlag()) {
+        if (!isPaired()) {
             throw new IllegalStateException("Inappropriate call if not paired read");
         }
     }
@@ -1498,7 +1498,7 @@ public class SAMRecord extends AbstractReadRecord {
         // ret is only instantiate if there are errors to report, in order to reduce GC in the typical case
         // in which everything is valid.  It's ugly, but more efficient.
         ArrayList<SAMValidationError> ret = null;
-        if (!getReadPairedFlag()) {
+        if (!isPaired()) {
             if (getProperPairFlagUnchecked()) {
                 if (ret == null) ret = new ArrayList<SAMValidationError>();
                 ret.add(new SAMValidationError(SAMValidationError.Type.INVALID_FLAG_PROPER_PAIR, "Proper pair flag should not be set for unpaired read.", getReadName()));
@@ -1744,7 +1744,7 @@ public class SAMRecord extends AbstractReadRecord {
     public String toString() {
         final StringBuilder builder = new StringBuilder(64);
         builder.append(getReadName());
-        if (getReadPairedFlag()) {
+        if (isPaired()) {
             if (getFirstOfPairFlag()) {
                 builder.append(" 1/2");
             }
