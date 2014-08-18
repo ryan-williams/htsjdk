@@ -53,7 +53,7 @@ public class TextCigarCodec
      */
     public String encode(final Cigar cigar) {
         if (cigar.isEmpty()) {
-            return SAMRecord.NO_ALIGNMENT_CIGAR;
+            return ReadRecord.NO_ALIGNMENT_CIGAR;
         }
         final StringBuilder ret = new StringBuilder();
         for (final CigarElement cigarElement : cigar.getCigarElements()) {
@@ -72,7 +72,7 @@ public class TextCigarCodec
      * @return cigar in Cigar class format
      */
     public Cigar decode(final String textCigar) {
-        if (SAMRecord.NO_ALIGNMENT_CIGAR.equals(textCigar)) {
+        if (ReadRecord.NO_ALIGNMENT_CIGAR.equals(textCigar)) {
             return new Cigar();
         }
         final Cigar ret = new Cigar();

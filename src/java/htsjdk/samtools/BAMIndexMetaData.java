@@ -117,10 +117,10 @@ public class BAMIndexMetaData {
      *
      * @param rec
      */
-    void recordMetaData(final SAMRecord rec) {
+    void recordMetaData(final ReadRecord rec) {
 
         final int alignmentStart = rec.getAlignmentStart();
-        if (alignmentStart == SAMRecord.NO_ALIGNMENT_START) {
+        if (alignmentStart == ReadRecord.NO_ALIGNMENT_START) {
             incrementNoCoordinateRecordCount();
             return;
         }
@@ -190,7 +190,7 @@ public class BAMIndexMetaData {
      */
     static public void printIndexStats(final File inputBamFile) {
         try {
-            final BAMFileReader bam = new BAMFileReader(inputBamFile, null, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory());
+            final BAMFileReader bam = new BAMFileReader(inputBamFile, null, false, ValidationStringency.SILENT, SAMRecordFactory.getInstance());
             if (!bam.hasIndex()) {
                 throw new SAMException("No index for bam file " + inputBamFile);
             }

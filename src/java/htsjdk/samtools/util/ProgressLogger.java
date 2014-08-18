@@ -1,6 +1,6 @@
 package htsjdk.samtools.util;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -92,8 +92,8 @@ public class ProgressLogger implements ProgressLoggerInterface {
      * Records that a given record has been processed and triggers logging if necessary.
      * @return boolean true if logging was triggered, false otherwise
      */
-    public synchronized boolean record(final SAMRecord rec) {
-        if (rec.getReferenceIndex() == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+    public synchronized boolean record(final ReadRecord rec) {
+        if (rec.getReferenceIndex() == ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
             return record(null, 0);
         }
         else {
@@ -102,9 +102,9 @@ public class ProgressLogger implements ProgressLoggerInterface {
     }
     
     /** Records multiple SAMRecords and triggers logging if necessary. */
-    public boolean record(final SAMRecord... recs) {
+    public boolean record(final ReadRecord... recs) {
         boolean triggered = false;
-        for (final SAMRecord rec : recs) triggered = record(rec) || triggered;
+        for (final ReadRecord rec : recs) triggered = record(rec) || triggered;
         return triggered;
     }
     

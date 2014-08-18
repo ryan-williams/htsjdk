@@ -4,16 +4,16 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.samtools.util.PeekIterator;
 
 /**
- * Wrapper around SAMRecord iterator that skips over secondary and supplementary elements.
+ * Wrapper around ReadRecord iterator that skips over secondary and supplementary elements.
  * This iterator conflates a filtering iterator and a peekable iterator.  It would be cleaner to
  * handle those concerns separately. This class should be viewed as a replacement for NotPrimarySkippingIterator,
  * in that we did not want to change the functionality of NPSI to no longer match its name
  */
 public class SecondaryOrSupplementarySkippingIterator {
-    private final PeekIterator<SAMRecord> it;
+    private final PeekIterator<ReadRecord> it;
 
-    public SecondaryOrSupplementarySkippingIterator(final CloseableIterator<SAMRecord> underlyingIt) {
-        it = new PeekIterator<SAMRecord>(underlyingIt);
+    public SecondaryOrSupplementarySkippingIterator(final CloseableIterator<ReadRecord> underlyingIt) {
+        it = new PeekIterator<ReadRecord>(underlyingIt);
         skipAnyNotprimary();
     }
 
@@ -21,7 +21,7 @@ public class SecondaryOrSupplementarySkippingIterator {
         return it.hasNext();
     }
 
-    public SAMRecord getCurrent() {
+    public ReadRecord getCurrent() {
         assert(hasCurrent());
         return it.peek();
     }

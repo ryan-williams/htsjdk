@@ -26,8 +26,8 @@ package htsjdk.samtools.util;
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.CigarOperator;
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMException;
-import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMValidationError;
 import htsjdk.samtools.TextCigarCodec;
 
@@ -105,7 +105,7 @@ public class CigarUtil {
      * and, for negative strands, also adjusts the SAM record's start position.
      * Soft clips the end of the read as the read came off the sequencer.
      */
-    public static void softClip3PrimeEndOfRead(SAMRecord rec, final int clipFrom) {
+    public static void softClip3PrimeEndOfRead(ReadRecord rec, final int clipFrom) {
 
         final Cigar cigar = rec.getCigar();
         // we don't worry about SEED_REGION_LENGTH in clipFrom
@@ -152,10 +152,10 @@ public class CigarUtil {
 
         if (!hasMappedBases) {
             rec.setReadUnmappedFlag(true);
-            rec.setCigarString(SAMRecord.NO_ALIGNMENT_CIGAR);
-            rec.setReferenceIndex(SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX);
-            rec.setAlignmentStart(SAMRecord.NO_ALIGNMENT_START);
-            rec.setMappingQuality(SAMRecord.NO_MAPPING_QUALITY);
+            rec.setCigarString(ReadRecord.NO_ALIGNMENT_CIGAR);
+            rec.setReferenceIndex(ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX);
+            rec.setAlignmentStart(ReadRecord.NO_ALIGNMENT_START);
+            rec.setMappingQuality(ReadRecord.NO_MAPPING_QUALITY);
             rec.setInferredInsertSize(0);
         }
         else if (!isValidCigar(rec, newCigar, false)){
@@ -166,7 +166,7 @@ public class CigarUtil {
 
     }
 
-    private static boolean isValidCigar(SAMRecord rec, Cigar cigar, boolean isOldCigar) {
+    private static boolean isValidCigar(ReadRecord rec, Cigar cigar, boolean isOldCigar) {
         if (cigar == null || cigar.getCigarElements() == null || cigar.getCigarElements().size() == 0) {
             if (isOldCigar) {
                 if (rec.getReadUnmappedFlag()) {

@@ -36,7 +36,7 @@ public class SAMFileReaderTest {
     public void variousFormatReaderTest(final String inputFile) {
         final File input = new File(TEST_DATA_DIR, inputFile);
         final SAMFileReader reader = new SAMFileReader(input);
-        for (final SAMRecord rec: reader) {}
+        for (final ReadRecord rec: reader) {}
         reader.close();
     }
 
@@ -52,16 +52,16 @@ public class SAMFileReaderTest {
     }
 
     // Tests for the SAMRecordFactory usage
-    class SAMRecordFactoryTester extends DefaultSAMRecordFactory {
+    class SAMRecordFactoryTester extends SAMRecordFactory {
         int samRecordsCreated;
         int bamRecordsCreated;
 
-        public SAMRecord createSAMRecord(final SAMFileHeader header) {
+        public ReadRecord createSAMRecord(final SAMFileHeader header) {
             ++samRecordsCreated;
             return super.createSAMRecord(header);
         }
 
-        public BAMRecord createBAMRecord(final SAMFileHeader header, final int referenceSequenceIndex, final int alignmentStart, final short readNameLength, final short mappingQuality, final int indexingBin, final int cigarLen, final int flags, final int readLen, final int mateReferenceSequenceIndex, final int mateAlignmentStart, final int insertSize, final byte[] variableLengthBlock) {
+        public ReadRecord createBAMRecord(final SAMFileHeader header, final int referenceSequenceIndex, final int alignmentStart, final short readNameLength, final short mappingQuality, final int indexingBin, final int cigarLen, final int flags, final int readLen, final int mateReferenceSequenceIndex, final int mateAlignmentStart, final int insertSize, final byte[] variableLengthBlock) {
             ++bamRecordsCreated;
             return super.createBAMRecord(header, referenceSequenceIndex, alignmentStart, readNameLength, mappingQuality, indexingBin, cigarLen, flags, readLen, mateReferenceSequenceIndex, mateAlignmentStart, insertSize, variableLengthBlock);
         }
@@ -75,7 +75,7 @@ public class SAMFileReaderTest {
         reader.setSAMRecordFactory(factory);
 
         int i=0;
-        for (final SAMRecord rec: reader) {
+        for (final ReadRecord rec: reader) {
             ++i;
         }
         reader.close();

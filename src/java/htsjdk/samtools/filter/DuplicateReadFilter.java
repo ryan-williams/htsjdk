@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 package htsjdk.samtools.filter;
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 
 /**
  * Filter out SAMRecords with DuplicateRead flag set
@@ -34,7 +34,7 @@ public class DuplicateReadFilter implements SamRecordFilter {
      * @param record the SAMRecord to evaluate
      * @return true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         return record.getDuplicateReadFlag();
     }
 
@@ -46,7 +46,7 @@ public class DuplicateReadFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
         throw new UnsupportedOperationException("Paired DuplicateReadFilter filter not implemented!");
     }
 }

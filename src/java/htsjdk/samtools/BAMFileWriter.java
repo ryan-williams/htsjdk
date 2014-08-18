@@ -108,7 +108,7 @@ class BAMFileWriter extends SAMFileWriterImpl {
         }
     }
 
-    protected void writeAlignment(final SAMRecord alignment) {
+    protected void writeAlignment(final ReadRecord alignment) {
         prepareToWriteAlignments();
 
         if (bamIndexer != null) {

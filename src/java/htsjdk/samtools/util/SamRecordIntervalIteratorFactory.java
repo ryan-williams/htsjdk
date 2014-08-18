@@ -24,8 +24,8 @@
 package htsjdk.samtools.util;
 
 import htsjdk.samtools.QueryInterval;
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMFileReader;
-import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.filter.IntervalFilter;
 import htsjdk.samtools.filter.SamRecordFilter;
 
@@ -50,7 +50,7 @@ public class SamRecordIntervalIteratorFactory {
      * Note however that if there are many intervals that cover a great deal of the genome, using the BAM
      * index may actually make performance worse.
      */
-    public CloseableIterator<SAMRecord> makeSamRecordIntervalIterator(final SAMFileReader samReader,
+    public CloseableIterator<ReadRecord> makeSamRecordIntervalIterator(final SAMFileReader samReader,
                                                                final List<Interval> uniqueIntervals,
                                                                final boolean useIndex) {
         if (!samReader.hasIndex() || !useIndex) {
@@ -85,14 +85,14 @@ public class SamRecordIntervalIteratorFactory {
      * FilteringIterator ctor could take a boolean "advance" that would tell it whether or not to call getNextRecord
      * in the ctor, so that it could be delayed in the subclass.  If this pattern happens again, we should do that. 
      */
-    private class StopAfterFilteringIterator implements CloseableIterator<SAMRecord> {
+    private class StopAfterFilteringIterator implements CloseableIterator<ReadRecord> {
         private final int stopAfterSequence;
         private final int stopAfterPosition;
-        private final Iterator<SAMRecord> iterator;
+        private final Iterator<ReadRecord> iterator;
         private final SamRecordFilter filter;
-        private SAMRecord next = null;
+        private ReadRecord next = null;
 
-        private StopAfterFilteringIterator(Iterator<SAMRecord> iterator, SamRecordFilter filter,
+        private StopAfterFilteringIterator(Iterator<ReadRecord> iterator, SamRecordFilter filter,
                                            int stopAfterSequence, int stopAfterPosition) {
             this.stopAfterSequence = stopAfterSequence;
             this.stopAfterPosition = stopAfterPosition;
@@ -117,11 +117,11 @@ public class SamRecordIntervalIteratorFactory {
          * @return  the next element in the iteration
          * @throws java.util.NoSuchElementException
          */
-        public SAMRecord next() {
+        public ReadRecord next() {
             if (next == null) {
                 throw new NoSuchElementException("Iterator has no more elements.");
             }
-            final SAMRecord result = next;
+            final ReadRecord result = next;
             next = getNextRecord();
             return result;
         }
@@ -139,10 +139,10 @@ public class SamRecordIntervalIteratorFactory {
             CloserUtil.close(iterator);
         }
 
-        protected SAMRecord getNextRecord() {
+        protected ReadRecord getNextRecord() {
             while (iterator.hasNext()) {
-                SAMRecord record = iterator.next();
-                if (record.getReferenceIndex() == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) return null;
+                ReadRecord record = iterator.next();
+                if (record.getReferenceIndex() == ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) return null;
                 else if (record.getReferenceIndex() > stopAfterSequence) return null;
                 else if (record.getReferenceIndex() == stopAfterSequence && record.getAlignmentStart() > stopAfterPosition) {
                     return null;

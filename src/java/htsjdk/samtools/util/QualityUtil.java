@@ -24,7 +24,7 @@
 
 package htsjdk.samtools.util;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 
 /**
  * Utility class for working with quality scores and error probabilities.
@@ -61,7 +61,7 @@ public final class QualityUtil {
      * the SAM record as opposed to the qualities directly so that it can make sure to count
      * no-calls as 1 instead of what the quality score says.
      * */
-    public static double sumOfErrorProbabilities(final SAMRecord rec) {
+    public static double sumOfErrorProbabilities(final ReadRecord rec) {
         final byte[] bases = rec.getReadBases();
         final byte[] quals = rec.getBaseQualities();
 

@@ -36,8 +36,8 @@ public class SamPairUtilTest {
                                            final SamPairUtil.PairOrientation expectedOrientation) {
         final SAMFileHeader header = new SAMFileHeader();
         header.addSequence(new SAMSequenceRecord("chr1", 100000000));
-        final SAMRecord rec1 = makeSamRecord(header, read1Start, read1Length, read1Reverse, true);
-        final SAMRecord rec2 = makeSamRecord(header, read2Start, read2Length, read2Reverse, false);
+        final ReadRecord rec1 = makeSamRecord(header, read1Start, read1Length, read1Reverse, true);
+        final ReadRecord rec2 = makeSamRecord(header, read2Start, read2Length, read2Reverse, false);
         SamPairUtil.setMateInfo(rec1, rec2, header, true);
         Assert.assertEquals(SamPairUtil.getPairOrientation(rec1), expectedOrientation, testName + " first end");
         Assert.assertEquals(SamPairUtil.getPairOrientation(rec2), expectedOrientation, testName + " second end");
@@ -49,16 +49,16 @@ public class SamPairUtilTest {
                                        final int read2Start, final boolean read2Reverse, final String read2Cigar) {
         final SAMFileHeader header = new SAMFileHeader();
         header.addSequence(new SAMSequenceRecord("chr1", 100000000));
-        final SAMRecord rec1 = makeSamRecord2(header, read1Start, read1Reverse, read1Cigar, true);
-        final SAMRecord rec2 = makeSamRecord2(header, read2Start, read2Reverse, read2Cigar, false);
+        final ReadRecord rec1 = makeSamRecord2(header, read1Start, read1Reverse, read1Cigar, true);
+        final ReadRecord rec2 = makeSamRecord2(header, read2Start, read2Reverse, read2Cigar, false);
         SamPairUtil.setMateInfo(rec1, rec2, header, true);
         Assert.assertEquals(SAMUtils.getMateCigarString(rec1), rec2.getCigarString(), testName + " first end");
         Assert.assertEquals(SAMUtils.getMateCigarString(rec2), rec1.getCigarString(), testName + " second end");
     }
 
-    private SAMRecord makeSamRecord(final SAMFileHeader header, final int alignmentStart, final int readLength,
+    private ReadRecord makeSamRecord(final SAMFileHeader header, final int alignmentStart, final int readLength,
                                     final boolean reverse, final boolean firstOfPair) {
-        final SAMRecord rec = new SAMRecord(header);
+        final ReadRecord rec = SAMRecordFactory.getInstance().createSAMRecord(header);
         rec.setReferenceIndex(0);
         final StringBuilder sb = new StringBuilder();
         final byte[] quals = new byte[readLength];
@@ -77,9 +77,9 @@ public class SamPairUtilTest {
         return rec;
     }
 
-    private SAMRecord makeSamRecord2(final SAMFileHeader header, final int alignmentStart, boolean reverse,
+    private ReadRecord makeSamRecord2(final SAMFileHeader header, final int alignmentStart, boolean reverse,
                                      String cigarString, final boolean firstOfPair) {
-        final SAMRecord rec = new SAMRecord(header);
+        final ReadRecord rec = SAMRecordFactory.getInstance().createSAMRecord(header);
         final StringBuilder sb = new StringBuilder();
         final Cigar cigar =  TextCigarCodec.getSingleton().decode(cigarString);
         final int readLength = cigar.getReadLength();

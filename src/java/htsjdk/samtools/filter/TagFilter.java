@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools.filter;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +66,7 @@ public class TagFilter implements SamRecordFilter {
      * @param record    the SAMRecord to evaluate
      * @return  true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(SAMRecord record) {
+    public boolean filterOut(ReadRecord record) {
         return values.contains(record.getAttribute(tag));
     }
 
@@ -78,7 +78,7 @@ public class TagFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
         // both first and second must have the tag in order for it to be filtered out
          return values.contains(first.getAttribute(tag)) && values.contains(second.getAttribute(tag));
     }

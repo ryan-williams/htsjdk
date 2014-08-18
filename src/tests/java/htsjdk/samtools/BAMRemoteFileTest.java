@@ -150,11 +150,11 @@ public class BAMRemoteFileTest {
         verbose("Testing query " + sequence + ":" + startPos + "-" + endPos + " ...");
         final SAMFileReader reader1 = new SAMFileReader(bamFile, BAM_INDEX_FILE, false);
         final SAMFileReader reader2 = new SAMFileReader(bamURL, BAM_INDEX_FILE, false);
-        final Iterator<SAMRecord> iter1 = reader1.query(sequence, startPos, endPos, contained);
-        final Iterator<SAMRecord> iter2 = reader2.query(sequence, startPos, endPos, contained);
+        final Iterator<ReadRecord> iter1 = reader1.query(sequence, startPos, endPos, contained);
+        final Iterator<ReadRecord> iter2 = reader2.query(sequence, startPos, endPos, contained);
 
-        final List<SAMRecord> records1 = new ArrayList<SAMRecord>();
-        final List<SAMRecord> records2 = new ArrayList<SAMRecord>();
+        final List<ReadRecord> records1 = new ArrayList<ReadRecord>();
+        final List<ReadRecord> records2 = new ArrayList<ReadRecord>();
 
         while (iter1.hasNext()) {
             records1.add(iter1.next());
@@ -177,12 +177,12 @@ public class BAMRemoteFileTest {
         verbose("Testing query " + sequence + ":" + startPos + "-" + endPos + " ...");
         final SAMFileReader reader1 = new SAMFileReader(bamURL, BAM_INDEX_FILE, false);
         final SAMFileReader reader2 = new SAMFileReader(bamURL, BAM_INDEX_FILE, false);
-        final Iterator<SAMRecord> iter1 = reader1.query(sequence, startPos, endPos, contained);
-        final Iterator<SAMRecord> iter2 = reader2.iterator();
+        final Iterator<ReadRecord> iter1 = reader1.query(sequence, startPos, endPos, contained);
+        final Iterator<ReadRecord> iter2 = reader2.iterator();
         // Compare ordered iterators.
         // Confirm that iter1 is a subset of iter2 that properly filters.
-        SAMRecord record1 = null;
-        SAMRecord record2 = null;
+        ReadRecord record1 = null;
+        ReadRecord record2 = null;
         int count1 = 0;
         int count2 = 0;
         int beforeCount = 0;
@@ -233,7 +233,7 @@ public class BAMRemoteFileTest {
         return count1;
     }
 
-    private void checkPassesFilter(final boolean expected, final SAMRecord record, final String sequence, final int startPos, final int endPos, final boolean contained) {
+    private void checkPassesFilter(final boolean expected, final ReadRecord record, final String sequence, final int startPos, final int endPos, final boolean contained) {
         final boolean passes = passesFilter(record, sequence, startPos, endPos, contained);
         if (passes != expected) {
             System.out.println("Error: Record erroneously " +
@@ -247,7 +247,7 @@ public class BAMRemoteFileTest {
         }
     }
 
-    private boolean passesFilter(final SAMRecord record, final String sequence, final int startPos, final int endPos, final boolean contained) {
+    private boolean passesFilter(final ReadRecord record, final String sequence, final int startPos, final int endPos, final boolean contained) {
         if (record == null) {
             return false;
         }
@@ -283,7 +283,7 @@ public class BAMRemoteFileTest {
         return true;
     }
 
-    private int compareCoordinates(final SAMRecord record1, final SAMRecord record2) {
+    private int compareCoordinates(final ReadRecord record1, final ReadRecord record2) {
         final int seqIndex1 = record1.getReferenceIndex();
         final int seqIndex2 = record2.getReferenceIndex();
         if (seqIndex1 == -1) {

@@ -109,9 +109,9 @@ public class SAMTools
 
     private int runView() {
         final SAMFileReader reader = new SAMFileReader(mInputFile);
-        final CloseableIterator<SAMRecord> iterator = reader.iterator();
+        final CloseableIterator<ReadRecord> iterator = reader.iterator();
         while (iterator.hasNext()) {
-            final SAMRecord record = iterator.next();
+            final ReadRecord record = iterator.next();
             System.out.println(record.format());
         }
         iterator.close();

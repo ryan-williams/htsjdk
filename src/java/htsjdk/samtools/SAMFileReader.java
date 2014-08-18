@@ -33,22 +33,9 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.samtools.util.CloserUtil;
 import htsjdk.samtools.util.IOUtil;
 import htsjdk.samtools.util.RuntimeIOException;
-import htsjdk.samtools.util.BlockCompressedInputStream;
-import htsjdk.samtools.util.BlockCompressedStreamConstants;
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.samtools.util.CloserUtil;
-import htsjdk.samtools.util.CoordMath;
-import htsjdk.samtools.util.IOUtil;
-import htsjdk.samtools.util.RuntimeIOException;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -95,12 +82,12 @@ public class SAMFileReader implements SamReader, SamReader.Indexing {
 
     private boolean mIsBinary = false;
     private BAMIndex mIndex = null;
-    private SAMRecordFactory samRecordFactory = new DefaultSAMRecordFactory();
+    private SAMRecordFactory samRecordFactory = SAMRecordFactory.getInstance();
     private ReaderImplementation mReader = null;
 
     private File samFile = null;
 
-    private static class EmptySamIterator implements CloseableIterator<SAMRecord> {
+    private static class EmptySamIterator implements CloseableIterator<ReadRecord> {
         @Override
         public boolean hasNext() {
             return false;
@@ -415,7 +402,7 @@ public class SAMFileReader implements SamReader, SamReader.Indexing {
      */
     public SAMRecordIterator query(final String sequence, final int start, final int end, final boolean contained) {
         final int referenceIndex = getFileHeader().getSequenceIndex(sequence);
-        final CloseableIterator<SAMRecord> currentIterator;
+        final CloseableIterator<ReadRecord> currentIterator;
         if (referenceIndex == -1) {
             currentIterator = new EmptySamIterator();
         } else {
@@ -582,7 +569,7 @@ public class SAMFileReader implements SamReader, SamReader.Indexing {
      * @param rec Record for which mate is sought.  Must be a paired read.
      * @return rec's mate, or null if it cannot be found.
      */
-    public SAMRecord queryMate(final SAMRecord rec) {
+    public ReadRecord queryMate(final ReadRecord rec) {
         if (!rec.getReadPairedFlag()) {
             throw new IllegalArgumentException("queryMate called for unpaired read.");
         }
@@ -590,16 +577,16 @@ public class SAMFileReader implements SamReader, SamReader.Indexing {
             throw new IllegalArgumentException("SAMRecord must be either first and second of pair, but not both.");
         }
         final boolean firstOfPair = rec.getFirstOfPairFlag();
-        final CloseableIterator<SAMRecord> it;
-        if (rec.getMateReferenceIndex() == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+        final CloseableIterator<ReadRecord> it;
+        if (rec.getMateReferenceIndex() == ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
             it = queryUnmapped();
         } else {
             it = queryAlignmentStart(rec.getMateReferenceName(), rec.getMateAlignmentStart());
         }
         try {
-            SAMRecord mateRec = null;
+            ReadRecord mateRec = null;
             while (it.hasNext()) {
-                final SAMRecord next = it.next();
+                final ReadRecord next = it.next();
                 if (!next.getReadPairedFlag()) {
                     if (rec.getReadName().equals(next.getReadName())) {
                         throw new SAMFormatException("Paired and unpaired reads with same name: " + rec.getReadName());

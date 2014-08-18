@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools.filter;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMRecordSetBuilder;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -46,7 +46,7 @@ public class SolexaNoiseFilterTest {
     @Test(dataProvider="data")
     public void testSolexaNoiseFilter(final String testName, final String sequence, final boolean expectedResult) {
         builder.addUnmappedFragment("testfrag");
-        final SAMRecord record = builder.iterator().next();
+        final ReadRecord record = builder.iterator().next();
         record.setReadString(sequence);
         Assert.assertEquals(filter.filterOut(record), expectedResult, testName);
     }

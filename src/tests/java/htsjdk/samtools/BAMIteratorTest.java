@@ -40,7 +40,7 @@ public class BAMIteratorTest {
     public void testIterateEmptyBam(final String bam) throws Exception {
         final SAMFileReader reader = new SAMFileReader(new File(TEST_DATA_DIR, bam));
         int numRecords = 0;
-        for (final SAMRecord rec : reader) {
+        for (final ReadRecord rec : reader) {
             ++numRecords;
         }
         Assert.assertEquals(numRecords, 0);
@@ -49,7 +49,7 @@ public class BAMIteratorTest {
     @Test(dataProvider = "dataProvider")
     public void testQueryUnmappedEmptyBam(final String bam) throws Exception {
         SAMFileReader reader = new SAMFileReader(new File(TEST_DATA_DIR, bam));
-        CloseableIterator<SAMRecord> it = reader.queryUnmapped();
+        CloseableIterator<ReadRecord> it = reader.queryUnmapped();
         int numRecords = 0;
         while (it.hasNext()) {
             it.next();

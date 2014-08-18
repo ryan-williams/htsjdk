@@ -34,7 +34,7 @@ public class SAMTestUtil {
     /**
      * Basic sanity check for a pair of SAMRecords.
      */
-    public void assertPairValid(final SAMRecord firstEnd, final SAMRecord secondEnd) {
+    public void assertPairValid(final ReadRecord firstEnd, final ReadRecord secondEnd) {
         Assert.assertEquals(firstEnd.getReadName(), secondEnd.getReadName());
         Assert.assertTrue(firstEnd.getFirstOfPairFlag());
         Assert.assertTrue(secondEnd.getSecondOfPairFlag());
@@ -49,28 +49,28 @@ public class SAMTestUtil {
     /**
      * Basic sanity check for a SAMRecord.
      */
-    public void assertReadValid(final SAMRecord read) {
+    public void assertReadValid(final ReadRecord read) {
         Assert.assertEquals(read.getReadBases().length, read.getBaseQualities().length);
         // Note that it is possible to have an unmapped read that has a coordinate
-        if (read.getReferenceName().equals(SAMRecord.NO_ALIGNMENT_REFERENCE_NAME)) {
-            Assert.assertEquals(read.getAlignmentStart(), SAMRecord.NO_ALIGNMENT_START);
+        if (read.getReferenceName().equals(ReadRecord.NO_ALIGNMENT_REFERENCE_NAME)) {
+            Assert.assertEquals(read.getAlignmentStart(), ReadRecord.NO_ALIGNMENT_START);
             Assert.assertTrue(read.getReadUnmappedFlag());
         } else {
-            Assert.assertNotSame(read.getAlignmentStart(), SAMRecord.NO_ALIGNMENT_START);
+            Assert.assertNotSame(read.getAlignmentStart(), ReadRecord.NO_ALIGNMENT_START);
         }
         if (read.getReadUnmappedFlag()) {
-            Assert.assertEquals(read.getMappingQuality(), SAMRecord.NO_MAPPING_QUALITY);
+            Assert.assertEquals(read.getMappingQuality(), ReadRecord.NO_MAPPING_QUALITY);
             Assert.assertEquals(read.getCigar().getCigarElements().size(), 0);
         } else {
             Assert.assertNotSame(read.getCigar().getCigarElements(), 0);
         }
         if (read.getReadPairedFlag()) {
-            if (read.getMateReferenceName().equals(SAMRecord.NO_ALIGNMENT_REFERENCE_NAME)) {
-                Assert.assertEquals(read.getMateAlignmentStart(), SAMRecord.NO_ALIGNMENT_START);
+            if (read.getMateReferenceName().equals(ReadRecord.NO_ALIGNMENT_REFERENCE_NAME)) {
+                Assert.assertEquals(read.getMateAlignmentStart(), ReadRecord.NO_ALIGNMENT_START);
                 Assert.assertTrue(read.getMateUnmappedFlag());
             } else {
                 // Even if the mate is unmapped, if it has a reference name, it should have a position.
-                Assert.assertNotSame(read.getMateAlignmentStart(), SAMRecord.NO_ALIGNMENT_START);
+                Assert.assertNotSame(read.getMateAlignmentStart(), ReadRecord.NO_ALIGNMENT_START);
             }
             if (read.getReadUnmappedFlag() || read.getMateUnmappedFlag() ||
                     !read.getReferenceName().equals(read.getMateReferenceName())) {

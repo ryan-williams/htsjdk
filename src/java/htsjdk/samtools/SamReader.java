@@ -10,7 +10,7 @@ import java.text.MessageFormat;
  *
  * @author mccowan
  */
-public interface SamReader extends Iterable<SAMRecord>, Closeable {
+public interface SamReader extends Iterable<ReadRecord>, Closeable {
 
     /** Describes a type of SAM file. */
     public abstract class Type {
@@ -296,7 +296,7 @@ public interface SamReader extends Iterable<SAMRecord>, Closeable {
      * @param rec Record for which mate is sought.  Must be a paired read.
      * @return rec's mate, or null if it cannot be found.
      */
-    public SAMRecord queryMate(final SAMRecord rec);
+    public ReadRecord queryMate(final ReadRecord rec);
 
 
     /**
@@ -312,17 +312,17 @@ public interface SamReader extends Iterable<SAMRecord>, Closeable {
 
         SAMFileHeader getFileHeader();
 
-        CloseableIterator<SAMRecord> getIterator();
+        CloseableIterator<ReadRecord> getIterator();
 
-        CloseableIterator<SAMRecord> getIterator(SAMFileSpan fileSpan);
+        CloseableIterator<ReadRecord> getIterator(SAMFileSpan fileSpan);
 
         SAMFileSpan getFilePointerSpanningReads();
 
-        CloseableIterator<SAMRecord> query(QueryInterval[] intervals, boolean contained);
+        CloseableIterator<ReadRecord> query(QueryInterval[] intervals, boolean contained);
 
-        CloseableIterator<SAMRecord> queryAlignmentStart(String sequence, int start);
+        CloseableIterator<ReadRecord> queryAlignmentStart(String sequence, int start);
 
-        CloseableIterator<SAMRecord> queryUnmapped();
+        CloseableIterator<ReadRecord> queryUnmapped();
 
         void close();
 
@@ -362,7 +362,7 @@ public interface SamReader extends Iterable<SAMRecord>, Closeable {
         }
 
         @Override
-        public SAMRecord queryMate(final SAMRecord rec) {
+        public ReadRecord queryMate(final ReadRecord rec) {
             if (!rec.getReadPairedFlag()) {
                 throw new IllegalArgumentException("queryMate called for unpaired read.");
             }
@@ -370,16 +370,16 @@ public interface SamReader extends Iterable<SAMRecord>, Closeable {
                 throw new IllegalArgumentException("SAMRecord must be either first and second of pair, but not both.");
             }
             final boolean firstOfPair = rec.getFirstOfPairFlag();
-            final CloseableIterator<SAMRecord> it;
-            if (rec.getMateReferenceIndex() == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+            final CloseableIterator<ReadRecord> it;
+            if (rec.getMateReferenceIndex() == ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                 it = queryUnmapped();
             } else {
                 it = queryAlignmentStart(rec.getMateReferenceName(), rec.getMateAlignmentStart());
             }
             try {
-                SAMRecord mateRec = null;
+                ReadRecord mateRec = null;
                 while (it.hasNext()) {
-                    final SAMRecord next = it.next();
+                    final ReadRecord next = it.next();
                     if (!next.getReadPairedFlag()) {
                         if (rec.getReadName().equals(next.getReadName())) {
                             throw new SAMFormatException("Paired and unpaired reads with same name: " + rec.getReadName());
@@ -487,15 +487,15 @@ public interface SamReader extends Iterable<SAMRecord>, Closeable {
 
     static class AssertingIterator implements SAMRecordIterator {
 
-        static AssertingIterator of(final CloseableIterator<SAMRecord> iterator) {
+        static AssertingIterator of(final CloseableIterator<ReadRecord> iterator) {
             return new AssertingIterator(iterator);
         }
 
-        private final CloseableIterator<SAMRecord> wrappedIterator;
-        private SAMRecord previous = null;
+        private final CloseableIterator<ReadRecord> wrappedIterator;
+        private ReadRecord previous = null;
         private SAMRecordComparator comparator = null;
 
-        public AssertingIterator(final CloseableIterator<SAMRecord> iterator) {
+        public AssertingIterator(final CloseableIterator<ReadRecord> iterator) {
             wrappedIterator = iterator;
         }
 
@@ -510,8 +510,8 @@ public interface SamReader extends Iterable<SAMRecord>, Closeable {
             return this;
         }
 
-        public SAMRecord next() {
-            final SAMRecord result = wrappedIterator.next();
+        public ReadRecord next() {
+            final ReadRecord result = wrappedIterator.next();
             if (comparator != null) {
                 if (previous != null) {
                     if (comparator.fileOrderCompare(previous, result) > 0) {

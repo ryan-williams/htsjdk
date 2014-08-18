@@ -41,7 +41,7 @@ public abstract class SAMFileWriterImpl implements SAMFileWriter
     private int maxRecordsInRam = DEAFULT_MAX_RECORDS_IN_RAM;
     private SAMFileHeader.SortOrder sortOrder;
     private SAMFileHeader header;
-    private SortingCollection<SAMRecord> alignmentSorter;
+    private SortingCollection<ReadRecord> alignmentSorter;
     private File tmpDir = new File(System.getProperty("java.io.tmpdir"));
 	private ProgressLoggerInterface progressLogger = null;
 
@@ -144,7 +144,7 @@ public abstract class SAMFileWriterImpl implements SAMFileWriter
                 sortOrderChecker = new SAMSortOrderChecker(sortOrder);
             }
         } else if (!sortOrder.equals(SAMFileHeader.SortOrder.unsorted)) {
-            alignmentSorter = SortingCollection.newInstance(SAMRecord.class,
+            alignmentSorter = SortingCollection.newInstance(ReadRecord.class,
                     new BAMRecordCodec(header), makeComparator(), maxRecordsInRam, tmpDir);
         }
     }
@@ -165,7 +165,7 @@ public abstract class SAMFileWriterImpl implements SAMFileWriter
         throw new IllegalStateException("sortOrder should not be null");
     }
 
-    public void addAlignment(final SAMRecord alignment)
+    public void addAlignment(final ReadRecord alignment)
     {
         if (sortOrder.equals(SAMFileHeader.SortOrder.unsorted)) {
             if (!header.getGroupOrder().equals(SAMFileHeader.GroupOrder.none)) {
@@ -180,8 +180,8 @@ public abstract class SAMFileWriterImpl implements SAMFileWriter
         }
     }
 
-    private void assertPresorted(final SAMRecord alignment) {
-        final SAMRecord prev = sortOrderChecker.getPreviousRecord();
+    private void assertPresorted(final ReadRecord alignment) {
+        final ReadRecord prev = sortOrderChecker.getPreviousRecord();
         if (!sortOrderChecker.isSorted(alignment)) {
             throw new IllegalArgumentException("Alignments added out of order in SAMFileWriterImpl.addAlignment for " +
                     getFilename() + ". Sort order is " + this.sortOrder + ". Offending records are at ["
@@ -196,7 +196,7 @@ public abstract class SAMFileWriterImpl implements SAMFileWriter
     public final void close()
     {
         if (alignmentSorter != null) {
-            for (final SAMRecord alignment : alignmentSorter) {
+            for (final ReadRecord alignment : alignmentSorter) {
                 writeAlignment(alignment);
 	            if (progressLogger != null) progressLogger.record(alignment);
             }
@@ -210,7 +210,7 @@ public abstract class SAMFileWriterImpl implements SAMFileWriter
      * this method is called.
      * @param alignment
      */
-    abstract protected void writeAlignment(SAMRecord alignment);
+    abstract protected void writeAlignment(ReadRecord alignment);
 
     /**
      * Write the header to disk.  Header object is available via getHeader().

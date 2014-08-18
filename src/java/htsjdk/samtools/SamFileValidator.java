@@ -24,7 +24,6 @@
 
 package htsjdk.samtools;
 
-import htsjdk.samtools.ValidationStringency;
 import htsjdk.samtools.SAMValidationError.Type;
 import htsjdk.samtools.metrics.MetricBase;
 import htsjdk.samtools.metrics.MetricsFile;
@@ -256,13 +255,13 @@ public class SamFileValidator {
      * in only a single pass of the SamRecords (because a SamReader's iterator() method may not return the same
      * records on a subsequent call).
      */
-    private void validateSamRecordsAndQualityFormat(final Iterable<SAMRecord> samRecords, final SAMFileHeader header) {
+    private void validateSamRecordsAndQualityFormat(final Iterable<ReadRecord> samRecords, final SAMFileHeader header) {
         final SAMRecordIterator iter = (SAMRecordIterator) samRecords.iterator();
         final ProgressLogger progress = new ProgressLogger(log, 10000000, "Validated Read");
         final QualityEncodingDetector qualityDetector = new QualityEncodingDetector();
         try {
             while (iter.hasNext()) {
-                final SAMRecord record = iter.next();
+                final ReadRecord record = iter.next();
 
                 qualityDetector.add(record);
 
@@ -315,7 +314,7 @@ public class SamFileValidator {
         }
     }
 
-    private void validateReadGroup(final SAMRecord record, final SAMFileHeader header) {
+    private void validateReadGroup(final ReadRecord record, final SAMFileHeader header) {
         final SAMReadGroupRecord rg = record.getReadGroup();
         if (rg == null) {
             addError(new SAMValidationError(Type.RECORD_MISSING_READ_GROUP,
@@ -330,8 +329,8 @@ public class SamFileValidator {
     /**
      * Report error if a tag value is a Long.
      */
-    private void validateTags(final SAMRecord record, final long recordNumber) {
-        for (final SAMRecord.SAMTagAndValue tagAndValue : record.getAttributes()) {
+    private void validateTags(final ReadRecord record, final long recordNumber) {
+        for (final ReadRecord.SAMTagAndValue tagAndValue : record.getAttributes()) {
             if (tagAndValue.value instanceof Long) {
                 addError(new SAMValidationError(Type.TAG_VALUE_TOO_LARGE,
                         "Numeric value too large for tag " + tagAndValue.tag,
@@ -340,7 +339,7 @@ public class SamFileValidator {
         }
     }
 
-    private void validateSecondaryBaseCalls(final SAMRecord record, final long recordNumber) {
+    private void validateSecondaryBaseCalls(final ReadRecord record, final long recordNumber) {
         final String e2 = (String) record.getAttribute(SAMTag.E2.name());
         if (e2 != null) {
             if (e2.length() != record.getReadLength()) {
@@ -371,18 +370,18 @@ public class SamFileValidator {
         }
     }
 
-    private boolean validateCigar(final SAMRecord record, final long recordNumber) {
+    private boolean validateCigar(final ReadRecord record, final long recordNumber) {
         if (record.getReadUnmappedFlag()) {
             return true;
         }
         return validateCigar(record, recordNumber, true);
     }
 
-    private boolean validateMateCigar(final SAMRecord record, final long recordNumber) {
+    private boolean validateMateCigar(final ReadRecord record, final long recordNumber) {
         return validateCigar(record, recordNumber, false);
     }
 
-    private boolean validateCigar(final SAMRecord record, final long recordNumber, final boolean isReadCigar) {
+    private boolean validateCigar(final ReadRecord record, final long recordNumber, final boolean isReadCigar) {
         final ValidationStringency savedStringency = record.getValidationStringency();
         record.setValidationStringency(ValidationStringency.LENIENT);
         final List<SAMValidationError> errors = isReadCigar ? record.validateCigar(recordNumber) : SAMUtils.validateMateCigar(record, recordNumber);
@@ -399,8 +398,8 @@ public class SamFileValidator {
     }
 
 
-    private void validateSortOrder(final SAMRecord record, final long recordNumber) {
-        final SAMRecord prev = orderChecker.getPreviousRecord();
+    private void validateSortOrder(final ReadRecord record, final long recordNumber) {
+        final ReadRecord prev = orderChecker.getPreviousRecord();
         if (!orderChecker.isSorted(record)) {
             addError(new SAMValidationError(
                     Type.RECORD_OUT_OF_ORDER,
@@ -432,7 +431,7 @@ public class SamFileValidator {
         this.refFileWalker = null;
     }
 
-    private void validateNmTag(final SAMRecord record, final long recordNumber) {
+    private void validateNmTag(final ReadRecord record, final long recordNumber) {
         if (!record.getReadUnmappedFlag()) {
             final Integer tagNucleotideDiffs = record.getIntegerAttribute(ReservedTagConstants.NM);
             if (tagNucleotideDiffs == null) {
@@ -458,7 +457,7 @@ public class SamFileValidator {
         }
     }
 
-    private void validateMateFields(final SAMRecord record, final long recordNumber) {
+    private void validateMateFields(final ReadRecord record, final long recordNumber) {
         if (!record.getReadPairedFlag() || record.isSecondaryOrSupplementary()) {
             return;
         }
@@ -592,7 +591,7 @@ public class SamFileValidator {
 
         private final long recordNumber;
 
-        public PairEndInfo(final SAMRecord record, final long recordNumber) {
+        public PairEndInfo(final ReadRecord record, final long recordNumber) {
             this.recordNumber = recordNumber;
 
             this.readAlignmentStart = record.getAlignmentStart();

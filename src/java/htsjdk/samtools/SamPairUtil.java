@@ -58,7 +58,7 @@ public class SamPairUtil {
      * @throws IllegalArgumentException If the record is not a paired read, or
      * one or both reads are unmapped.
      */
-    public static PairOrientation getPairOrientation(SAMRecord r)
+    public static PairOrientation getPairOrientation(ReadRecord r)
     {
         final boolean readIsOnReverseStrand = r.getReadNegativeStrandFlag();
 
@@ -87,13 +87,13 @@ public class SamPairUtil {
 
 
     // TODO: KT and TF say this is more complicated than what I have here
-    public static boolean isProperPair(final SAMRecord firstEnd, final SAMRecord secondEnd,
+    public static boolean isProperPair(final ReadRecord firstEnd, final ReadRecord secondEnd,
                                        final List<PairOrientation> expectedOrientations) {
         // are both records mapped?
         if (firstEnd.getReadUnmappedFlag() || secondEnd.getReadUnmappedFlag()) {
             return false;
         }
-        if (firstEnd.getReferenceName().equals(SAMRecord.NO_ALIGNMENT_REFERENCE_NAME)) {
+        if (firstEnd.getReferenceName().equals(ReadRecord.NO_ALIGNMENT_REFERENCE_NAME)) {
             return false;
         }
         // AND are they both mapped to the same chromosome
@@ -107,7 +107,7 @@ public class SamPairUtil {
         return expectedOrientations.contains(actual);
     }
 
-    public static void assertMate(final SAMRecord firstOfPair, final SAMRecord secondOfPair) {
+    public static void assertMate(final ReadRecord firstOfPair, final ReadRecord secondOfPair) {
         // Validate paired reads arrive as first of pair, then second of pair
 
         if (firstOfPair == null) {
@@ -144,10 +144,10 @@ public class SamPairUtil {
      * @return the secondOfPair SAMRecord
      * @throws SAMException when the secondOfPair mate cannot be obtained due to assertion failures
      */
-    public static SAMRecord obtainAssertedMate(final Iterator<SAMRecord> samRecordIterator,
-                                               final SAMRecord firstOfPair) {
+    public static ReadRecord obtainAssertedMate(final Iterator<ReadRecord> samRecordIterator,
+                                               final ReadRecord firstOfPair) {
         if (samRecordIterator.hasNext()) {
-            final SAMRecord secondOfPair = samRecordIterator.next();
+            final ReadRecord secondOfPair = samRecordIterator.next();
             assertMate(firstOfPair, secondOfPair);
             return secondOfPair;
         } else {
@@ -162,7 +162,7 @@ public class SamPairUtil {
      * @param secondEnd
      * @return note that when storing insert size on the secondEnd, the return value must be negated.
      */
-    public static int computeInsertSize(final SAMRecord firstEnd, final SAMRecord secondEnd) {
+    public static int computeInsertSize(final ReadRecord firstEnd, final ReadRecord secondEnd) {
         if (firstEnd.getReadUnmappedFlag() || secondEnd.getReadUnmappedFlag()) {
             return 0;
         }
@@ -184,7 +184,7 @@ public class SamPairUtil {
      * @param header the SAM file header
      * @param setMateCigar true if we are to update/create the Mate CIGAR (MC) optional tag, false if we are to clear any mate cigar tag that is present.
      */
-    public static void setMateInfo(final SAMRecord rec1, final SAMRecord rec2, final SAMFileHeader header, final boolean setMateCigar) {
+    public static void setMateInfo(final ReadRecord rec1, final ReadRecord rec2, final SAMFileHeader header, final boolean setMateCigar) {
         // If neither read is unmapped just set their mate info
         if (!rec1.getReadUnmappedFlag() && !rec2.getReadUnmappedFlag()) {
             rec1.setMateReferenceIndex(rec2.getReferenceIndex());
@@ -210,20 +210,20 @@ public class SamPairUtil {
         }
         // Else if they're both unmapped set that straight
         else if (rec1.getReadUnmappedFlag() && rec2.getReadUnmappedFlag()) {
-            rec1.setReferenceIndex(SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX);
-            rec1.setAlignmentStart(SAMRecord.NO_ALIGNMENT_START);
-            rec1.setMateReferenceIndex(SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX);
-            rec1.setMateAlignmentStart(SAMRecord.NO_ALIGNMENT_START);
+            rec1.setReferenceIndex(ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX);
+            rec1.setAlignmentStart(ReadRecord.NO_ALIGNMENT_START);
+            rec1.setMateReferenceIndex(ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX);
+            rec1.setMateAlignmentStart(ReadRecord.NO_ALIGNMENT_START);
             rec1.setMateNegativeStrandFlag(rec2.getReadNegativeStrandFlag());
             rec1.setMateUnmappedFlag(true);
             rec1.setAttribute(SAMTag.MQ.name(), null);
             rec1.setAttribute(SAMTag.MC.name(), null);
             rec1.setInferredInsertSize(0);
 
-            rec2.setReferenceIndex(SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX);
-            rec2.setAlignmentStart(SAMRecord.NO_ALIGNMENT_START);
-            rec2.setMateReferenceIndex(SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX);
-            rec2.setMateAlignmentStart(SAMRecord.NO_ALIGNMENT_START);
+            rec2.setReferenceIndex(ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX);
+            rec2.setAlignmentStart(ReadRecord.NO_ALIGNMENT_START);
+            rec2.setMateReferenceIndex(ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX);
+            rec2.setMateAlignmentStart(ReadRecord.NO_ALIGNMENT_START);
             rec2.setMateNegativeStrandFlag(rec1.getReadNegativeStrandFlag());
             rec2.setMateUnmappedFlag(true);
             rec2.setAttribute(SAMTag.MQ.name(), null);
@@ -232,8 +232,8 @@ public class SamPairUtil {
         }
         // And if only one is mapped copy it's coordinate information to the mate
         else {
-            final SAMRecord mapped   = rec1.getReadUnmappedFlag() ? rec2 : rec1;
-            final SAMRecord unmapped = rec1.getReadUnmappedFlag() ? rec1 : rec2;
+            final ReadRecord mapped   = rec1.getReadUnmappedFlag() ? rec2 : rec1;
+            final ReadRecord unmapped = rec1.getReadUnmappedFlag() ? rec1 : rec2;
             unmapped.setReferenceIndex(mapped.getReferenceIndex());
             unmapped.setAlignmentStart(mapped.getAlignmentStart());
 
@@ -266,7 +266,7 @@ public class SamPairUtil {
      * @param rec2 the second SAM record
      * @param header the SAM file header
      */
-    public static void setMateInfo(final SAMRecord rec1, final SAMRecord rec2, final SAMFileHeader header) {
+    public static void setMateInfo(final ReadRecord rec1, final ReadRecord rec2, final SAMFileHeader header) {
         setMateInfo(rec1, rec2, header, false);
     }
 
@@ -276,8 +276,8 @@ public class SamPairUtil {
      * @param supplemental a supplemental alignment for the mate pair of the primary supplied
      * @param matePrimary the primary alignment of the the mate pair of the supplemental
      */
-    public static void setMateInformationOnSupplementalAlignment( final SAMRecord supplemental,
-                                                                  final SAMRecord matePrimary) {
+    public static void setMateInformationOnSupplementalAlignment( final ReadRecord supplemental,
+                                                                  final ReadRecord matePrimary) {
         supplemental.setMateReferenceIndex(matePrimary.getReferenceIndex());
         supplemental.setMateAlignmentStart(matePrimary.getAlignmentStart());
         supplemental.setMateNegativeStrandFlag(matePrimary.getReadNegativeStrandFlag());
@@ -288,7 +288,7 @@ public class SamPairUtil {
     /**
      * This method will clear any mate cigar already present.
      */
-    public static void setProperPairAndMateInfo(final SAMRecord rec1, final SAMRecord rec2,
+    public static void setProperPairAndMateInfo(final ReadRecord rec1, final ReadRecord rec2,
                                                 final SAMFileHeader header,
                                                 final List<PairOrientation> exepectedOrientations) {
         setProperPairAndMateInfo(rec1, rec2, header, exepectedOrientations, false);
@@ -301,7 +301,7 @@ public class SamPairUtil {
      * @param exepectedOrientations
      * @param addMateCigar true if we are to update/create the Mate CIGAR (MC) optional tag, false if we are to clear any mate cigar tag that is present.
      */
-    public static void setProperPairAndMateInfo(final SAMRecord rec1, final SAMRecord rec2,
+    public static void setProperPairAndMateInfo(final ReadRecord rec1, final ReadRecord rec2,
                                                 final SAMFileHeader header,
                                                 final List<PairOrientation> exepectedOrientations,
                                                 final boolean addMateCigar) {
@@ -309,7 +309,7 @@ public class SamPairUtil {
         setProperPairFlags(rec1, rec2, exepectedOrientations);
     }
 
-    public static void setProperPairFlags(final SAMRecord rec1, final SAMRecord rec2, final List<PairOrientation> expectedOrientations) {
+    public static void setProperPairFlags(final ReadRecord rec1, final ReadRecord rec2, final List<PairOrientation> expectedOrientations) {
         final boolean properPair =  (!rec1.getReadUnmappedFlag() && !rec2.getReadUnmappedFlag())
                 ? isProperPair(rec1, rec2, expectedOrientations)
                 : false;

@@ -89,7 +89,7 @@ public class SAMTextWriter extends SAMFileWriterImpl {
      *
      * @param alignment SAMRecord.
      */
-    public void writeAlignment(final SAMRecord alignment) {
+    public void writeAlignment(final ReadRecord alignment) {
         try {
             out.write(alignment.getReadName());
             out.write(FIELD_SEPARATOR);
@@ -106,7 +106,7 @@ public class SAMTextWriter extends SAMFileWriterImpl {
 
             //  == is OK here because these strings are interned
             if (alignment.getReferenceName() == alignment.getMateReferenceName() &&
-                    SAMRecord.NO_ALIGNMENT_REFERENCE_NAME != alignment.getReferenceName()) {
+                    ReadRecord.NO_ALIGNMENT_REFERENCE_NAME != alignment.getReferenceName()) {
                 out.write("=");
             } else {
                 out.write(alignment.getMateReferenceName());
@@ -141,7 +141,7 @@ public class SAMTextWriter extends SAMFileWriterImpl {
     /* This method is called by SAMRecord.getSAMString(). */
     private static SAMTextWriter textWriter = null;
     private static StringWriter stringWriter = null;
-    static synchronized String getSAMString(final SAMRecord alignment) {
+    static synchronized String getSAMString(final ReadRecord alignment) {
 	if (stringWriter == null) stringWriter = new StringWriter();
 	if (textWriter == null) textWriter = new SAMTextWriter(stringWriter);
 	stringWriter.getBuffer().setLength(0);

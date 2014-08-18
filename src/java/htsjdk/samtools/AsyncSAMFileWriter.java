@@ -13,7 +13,7 @@ import htsjdk.samtools.util.ProgressLoggerInterface;
  *
  * @author Tim Fennell
  */
-class AsyncSAMFileWriter extends AbstractAsyncWriter<SAMRecord> implements SAMFileWriter {
+class AsyncSAMFileWriter extends AbstractAsyncWriter<ReadRecord> implements SAMFileWriter {
 
     private final SAMFileWriter underlyingWriter;
 
@@ -33,7 +33,7 @@ class AsyncSAMFileWriter extends AbstractAsyncWriter<SAMRecord> implements SAMFi
         this.underlyingWriter = out;
     }
 
-    @Override protected void synchronouslyWrite(final SAMRecord item) { this.underlyingWriter.addAlignment(item); }
+    @Override protected void synchronouslyWrite(final ReadRecord item) { this.underlyingWriter.addAlignment(item); }
 
     @Override protected void synchronouslyClose() { this.underlyingWriter.close();  }
 
@@ -48,7 +48,7 @@ class AsyncSAMFileWriter extends AbstractAsyncWriter<SAMRecord> implements SAMFi
      * Adds an alignment to the queue to be written.  Will re-throw any exception that was received when
      * writing prior record(s) to the underlying SAMFileWriter.
      */
-    public void addAlignment(final SAMRecord alignment) {
+    public void addAlignment(final ReadRecord alignment) {
         write(alignment);
     }
 

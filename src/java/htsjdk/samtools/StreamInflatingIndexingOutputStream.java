@@ -70,7 +70,7 @@ class Indexer implements Runnable {
         in.setValidationStringency(ValidationStringency.SILENT);
         in.enableCrcChecking(false);
         final BAMIndexer indexer = new BAMIndexer(this.index, in.getFileHeader());
-        for (final SAMRecord rec : in) {
+        for (final ReadRecord rec : in) {
             indexer.processAlignment(rec);
         }
 

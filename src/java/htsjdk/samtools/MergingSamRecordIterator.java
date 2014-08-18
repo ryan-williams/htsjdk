@@ -34,7 +34,7 @@ import java.util.PriorityQueue;
  * iterable stream. The underlying iterators/files must all have the same sort order unless
  * the requested output format is unsorted, in which case any combination is valid.
  */
-public class MergingSamRecordIterator implements CloseableIterator<SAMRecord> {
+public class MergingSamRecordIterator implements CloseableIterator<ReadRecord> {
     private final PriorityQueue<ComparableSamRecordIterator> pq;
     private final SamFileHeaderMerger samHeaderMerger;
     private final Collection<SAMFileReader> readers;
@@ -84,9 +84,9 @@ public class MergingSamRecordIterator implements CloseableIterator<SAMRecord> {
      * @param headerMerger The merged header and contents of readers.
      * @param iterators Iterator traversing over reader contents.
      */
-    public MergingSamRecordIterator(final SamFileHeaderMerger headerMerger, final Map<SAMFileReader,CloseableIterator<SAMRecord>> iterators, final boolean assumeSorted) {
+    public MergingSamRecordIterator(final SamFileHeaderMerger headerMerger, final Map<SAMFileReader,CloseableIterator<ReadRecord>> iterators, final boolean assumeSorted) {
         this(headerMerger,iterators.keySet(),assumeSorted);
-        for (final Map.Entry<SAMFileReader,CloseableIterator<SAMRecord>> mapping : iterators.entrySet())
+        for (final Map.Entry<SAMFileReader,CloseableIterator<ReadRecord>> mapping : iterators.entrySet())
             addIfNotEmpty(new ComparableSamRecordIterator(mapping.getKey(),mapping.getValue(),comparator));
         initialized = true;
     }
@@ -104,7 +104,7 @@ public class MergingSamRecordIterator implements CloseableIterator<SAMRecord> {
      */
     public void close() {
         // Iterators not in the priority queue have already been closed; only close down the iterators that are still in the priority queue.
-        for(CloseableIterator<SAMRecord> iterator: pq)
+        for(CloseableIterator<ReadRecord> iterator: pq)
             iterator.close();
     }
 
@@ -115,11 +115,11 @@ public class MergingSamRecordIterator implements CloseableIterator<SAMRecord> {
     }
 
     /** Returns the next record from the top most iterator during merging. */
-    public SAMRecord next() {
+    public ReadRecord next() {
         startIterationIfRequired();
         
         final ComparableSamRecordIterator iterator = this.pq.poll();
-        final SAMRecord record = iterator.next();
+        final ReadRecord record = iterator.next();
         addIfNotEmpty(iterator);
         record.setHeader(this.samHeaderMerger.getMergedHeader());
 
@@ -143,11 +143,11 @@ public class MergingSamRecordIterator implements CloseableIterator<SAMRecord> {
 
         // Fix up the sequence indexes if needs be
         if (this.samHeaderMerger.hasMergedSequenceDictionary()) {
-            if (record.getReferenceIndex() != SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+            if (record.getReferenceIndex() != ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                 record.setReferenceIndex(this.samHeaderMerger.getMergedSequenceIndex(iterator.getReader().getFileHeader(),record.getReferenceIndex()));
             }
 
-            if (record.getReadPairedFlag() && record.getMateReferenceIndex() != SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+            if (record.getReadPairedFlag() && record.getMateReferenceIndex() != ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                 record.setMateReferenceIndex(this.samHeaderMerger.getMergedSequenceIndex(iterator.getReader().getFileHeader(),record.getMateReferenceIndex()));
             }
         }
@@ -182,11 +182,11 @@ public class MergingSamRecordIterator implements CloseableIterator<SAMRecord> {
         // For unsorted build a fake comparator that compares based on object ID
         if (this.sortOrder == SAMFileHeader.SortOrder.unsorted) {
             return new SAMRecordComparator() {
-                public int fileOrderCompare(final SAMRecord lhs, final SAMRecord rhs) {
+                public int fileOrderCompare(final ReadRecord lhs, final ReadRecord rhs) {
                     return System.identityHashCode(lhs) - System.identityHashCode(rhs);
                 }
 
-                public int compare(final SAMRecord lhs, final SAMRecord rhs) {
+                public int compare(final ReadRecord lhs, final ReadRecord rhs) {
                     return fileOrderCompare(lhs, rhs);
                 }
             };
@@ -211,33 +211,33 @@ public class MergingSamRecordIterator implements CloseableIterator<SAMRecord> {
      */
     private class MergedSequenceDictionaryCoordinateOrderComparator extends SAMRecordCoordinateComparator {
 
-        public int fileOrderCompare(final SAMRecord samRecord1, final SAMRecord samRecord2) {
+        public int fileOrderCompare(final ReadRecord samRecord1, final ReadRecord samRecord2) {
             final int referenceIndex1 = getReferenceIndex(samRecord1);
             final int referenceIndex2 = getReferenceIndex(samRecord2);
             if (referenceIndex1 != referenceIndex2) {
-                if (referenceIndex1 == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+                if (referenceIndex1 == ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                     return 1;
-                } else if (referenceIndex2 == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+                } else if (referenceIndex2 == ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                     return -1;
                 } else {
                     return referenceIndex1 - referenceIndex2;
                 }
             }
-            if (referenceIndex1 == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+            if (referenceIndex1 == ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                 // Both are unmapped.
                 return 0;
             }
             return samRecord1.getAlignmentStart() - samRecord2.getAlignmentStart();
         }
 
-        private int getReferenceIndex(final SAMRecord samRecord) {
-            if (samRecord.getReferenceIndex() != SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+        private int getReferenceIndex(final ReadRecord samRecord) {
+            if (samRecord.getReferenceIndex() != ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                 return samHeaderMerger.getMergedSequenceIndex(samRecord.getHeader(), samRecord.getReferenceIndex());
             }
-            if (samRecord.getMateReferenceIndex() != SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+            if (samRecord.getMateReferenceIndex() != ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                 return samHeaderMerger.getMergedSequenceIndex(samRecord.getHeader(), samRecord.getMateReferenceIndex());
             }
-            return SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX;
+            return ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX;
         }
     }
 }

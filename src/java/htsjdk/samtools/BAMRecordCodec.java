@@ -34,7 +34,7 @@ import java.util.Arrays;
 /**
  * Class for translating between in-memory and disk representation of BAMRecord.
  */
-public class BAMRecordCodec implements SortingCollection.Codec<SAMRecord> {
+public class BAMRecordCodec implements SortingCollection.Codec<ReadRecord> {
     private final BinaryCigarCodec cigarCodec = new BinaryCigarCodec();
     private final SAMFileHeader header;
     private final BinaryCodec binaryCodec = new BinaryCodec();
@@ -42,7 +42,7 @@ public class BAMRecordCodec implements SortingCollection.Codec<SAMRecord> {
     private final SAMRecordFactory samRecordFactory;
 
     public BAMRecordCodec(final SAMFileHeader header) {
-        this(header, new DefaultSAMRecordFactory());
+        this(header, SAMRecordFactory.getInstance());
     }
 
     public BAMRecordCodec(final SAMFileHeader header, final SAMRecordFactory factory) {
@@ -86,7 +86,7 @@ public class BAMRecordCodec implements SortingCollection.Codec<SAMRecord> {
      *
      * @param alignment Record to be written.
      */
-    public void encode(final SAMRecord alignment) {
+    public void encode(final ReadRecord alignment) {
         // Compute block size, as it is the first element of the file representation of SAMRecord
         final int readLength = alignment.getReadLength();
 
@@ -172,7 +172,7 @@ public class BAMRecordCodec implements SortingCollection.Codec<SAMRecord> {
      * @return null if no more records.  Should throw exception if EOF is encountered in the middle of
      *         a record.
      */
-    public SAMRecord decode() {
+    public ReadRecord decode() {
         int recordLength = 0;
         try {
             recordLength = this.binaryCodec.readInt();
@@ -198,7 +198,7 @@ public class BAMRecordCodec implements SortingCollection.Codec<SAMRecord> {
         final int insertSize = this.binaryCodec.readInt();
         final byte[] restOfRecord = new byte[recordLength - BAMFileConstants.FIXED_BLOCK_SIZE];
         this.binaryCodec.readBytes(restOfRecord);
-        final BAMRecord ret = this.samRecordFactory.createBAMRecord(
+        final ReadRecord ret = this.samRecordFactory.createBAMRecord(
                 header, referenceID, coordinate, readNameLength, mappingQuality,
                 bin, cigarLen, flags, readLen, mateReferenceID, mateCoordinate, insertSize, restOfRecord);
         ret.setHeader(header); 

@@ -81,10 +81,10 @@ public class SAMTextReaderTest {
         Assert.assertEquals(fileHeader.getReadGroup("L1").getAttribute(floatTag), Float.toString(floatValue));
         Assert.assertEquals(fileHeader.getProgramRecord("0").getAttribute(stringTag), stringValue);
 
-        final CloseableIterator<SAMRecord> iterator = samReader.iterator();
+        final CloseableIterator<ReadRecord> iterator = samReader.iterator();
         int i = 0;
         while (iterator.hasNext()) {
-            final SAMRecord rec = iterator.next();
+            final ReadRecord rec = iterator.next();
             Assert.assertEquals(rec.format(), samResults[i++]);
         }
         iterator.close();
@@ -102,7 +102,7 @@ public class SAMTextReaderTest {
         final String alignmentFromKris =
           "0\t4\t*\t0\t0\t*\t*\t0\t0\tGCCTCGTAGTGCGCCATCAGTCTATCGATGTCGTTG\t44\"44===;;;;;;;;;::::88844\"4\"\"\"\"\"\"\"\"\n";
         final SAMFileReader samReader = createSamFileReader(alignmentFromKris);
-        final CloseableIterator<SAMRecord> iterator = samReader.iterator();
+        final CloseableIterator<ReadRecord> iterator = samReader.iterator();
         while (iterator.hasNext()) {
             iterator.next();
         }
@@ -118,7 +118,7 @@ public class SAMTextReaderTest {
         // Create a SAMRecord with a String tag containing a colon
         final SAMRecordSetBuilder samBuilder = new SAMRecordSetBuilder();
         samBuilder.addUnmappedFragment("Hi,Mom!");
-        final SAMRecord rec = samBuilder.iterator().next();
+        final ReadRecord rec = samBuilder.iterator().next();
         final String valueWithColons = "A:B::C:::";
         rec.setAttribute(SAMTag.CQ.name(),  valueWithColons);
         // Write the record as SAM Text
@@ -129,7 +129,7 @@ public class SAMTextReaderTest {
         textWriter.close();
 
         final SAMFileReader reader = new SAMFileReader(new ByteArrayInputStream(os.toByteArray()));
-        final SAMRecord recFromText = reader.iterator().next();
+        final ReadRecord recFromText = reader.iterator().next();
         Assert.assertEquals(recFromText.getAttribute(SAMTag.CQ.name()), valueWithColons);
     }
 }

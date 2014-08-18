@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools.filter;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 
 /**
  * Filter out SAMRecords with NotPrimaryAlignment flag set
@@ -35,7 +35,7 @@ public class NotPrimaryAlignmentFilter implements SamRecordFilter {
      * @param record the SAMRecord to evaluate
      * @return true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         return record.getNotPrimaryAlignmentFlag();
     }
 
@@ -47,7 +47,7 @@ public class NotPrimaryAlignmentFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
         // if either fails, exclude them both
         return (first.getNotPrimaryAlignmentFlag() || second.getNotPrimaryAlignmentFlag());
     }

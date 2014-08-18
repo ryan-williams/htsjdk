@@ -28,7 +28,7 @@ import java.util.Comparator;
 /**
  * Interface for comparators that define the various SAM sort orders.
  */
-public interface SAMRecordComparator extends Comparator<SAMRecord> {
+public interface SAMRecordComparator extends Comparator<ReadRecord> {
 
     /**
      * Less stringent compare method than the regular compare.  If the two records
@@ -36,5 +36,5 @@ public interface SAMRecordComparator extends Comparator<SAMRecord> {
      * this method returns 0.
      * @return negative if samRecord1 < samRecord2,  0 if equal, else positive
      */
-    public int fileOrderCompare(SAMRecord samRecord1, SAMRecord samRecord2);
+    public int fileOrderCompare(ReadRecord samRecord1, ReadRecord samRecord2);
 }

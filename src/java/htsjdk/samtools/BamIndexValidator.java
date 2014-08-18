@@ -47,7 +47,7 @@ public class BamIndexValidator {
             for (int i = 0; i < n_ref; i++) {
                 BAMIndexContent content = existingIndex.getQueryResults(i);
                 for (Chunk c : content.getAllChunks()) {
-                    final CloseableIterator<SAMRecord> iter = reader.iterator(new BAMFileSpan(c));
+                    final CloseableIterator<ReadRecord> iter = reader.iterator(new BAMFileSpan(c));
                     chunkCount++;
                     BAMRecord b = null;
                     try {
@@ -67,7 +67,7 @@ public class BamIndexValidator {
                 for (long l : linearIndex.getIndexEntries()) {
                     try {
                         if (l != 0) {
-                            final CloseableIterator<SAMRecord> iter = reader.iterator(new BAMFileSpan(new Chunk(l, l + 1)));
+                            final CloseableIterator<ReadRecord> iter = reader.iterator(new BAMFileSpan(new Chunk(l, l + 1)));
                             BAMRecord b = (BAMRecord) iter.next();   // read the first record identified by the linear index
                             indexCount++;
                             iter.close();

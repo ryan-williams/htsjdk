@@ -118,7 +118,7 @@ public class BAMIndexWriterTest {
 
         // get records for the entire linear index window
         SAMRecordIterator iter = reader.queryOverlapping(chr, start, stop);
-        SAMRecord rec;
+        ReadRecord rec;
         int count = 0;
         while (iter.hasNext()) {
             rec = iter.next();

@@ -29,7 +29,7 @@ public class SamReaderFactoryTest {
     public void variousFormatReaderTest(final String inputFile) throws IOException {
         final File input = new File(TEST_DATA_DIR, inputFile);
         final SamReader reader = SamReaderFactory.makeDefault().open(input);
-        for (final SAMRecord ignored : reader) {
+        for (final ReadRecord ignored : reader) {
         }
         reader.close();
     }
@@ -46,16 +46,16 @@ public class SamReaderFactoryTest {
     }
 
     // Tests for the SAMRecordFactory usage
-    class SAMRecordFactoryTester extends DefaultSAMRecordFactory {
+    class SAMRecordFactoryTester extends SAMRecordFactory {
         int samRecordsCreated;
         int bamRecordsCreated;
 
-        public SAMRecord createSAMRecord(final SAMFileHeader header) {
+        public ReadRecord createSAMRecord(final SAMFileHeader header) {
             ++samRecordsCreated;
             return super.createSAMRecord(header);
         }
 
-        public BAMRecord createBAMRecord(final SAMFileHeader header, final int referenceSequenceIndex, final int alignmentStart, final short readNameLength, final short mappingQuality, final int indexingBin, final int cigarLen, final int flags, final int readLen, final int mateReferenceSequenceIndex, final int mateAlignmentStart, final int insertSize, final byte[] variableLengthBlock) {
+        public ReadRecord createBAMRecord(final SAMFileHeader header, final int referenceSequenceIndex, final int alignmentStart, final short readNameLength, final short mappingQuality, final int indexingBin, final int cigarLen, final int flags, final int readLen, final int mateReferenceSequenceIndex, final int mateAlignmentStart, final int insertSize, final byte[] variableLengthBlock) {
             ++bamRecordsCreated;
             return super.createBAMRecord(header, referenceSequenceIndex, alignmentStart, readNameLength, mappingQuality, indexingBin, cigarLen, flags, readLen, mateReferenceSequenceIndex, mateAlignmentStart, insertSize, variableLengthBlock);
         }
@@ -70,7 +70,7 @@ public class SamReaderFactoryTest {
         final SamReader reader = readerFactory.open(input);
 
         int i = 0;
-        for (final SAMRecord ignored : reader) {
+        for (final ReadRecord ignored : reader) {
             ++i;
         }
         reader.close();
@@ -140,13 +140,13 @@ public class SamReaderFactoryTest {
     }
 
     final Set<SAMFileHeader> observedHeaders = new HashSet<SAMFileHeader>();
-    final Set<List<SAMRecord>> observedRecordOrdering = new HashSet<List<SAMRecord>>();
+    final Set<List<ReadRecord>> observedRecordOrdering = new HashSet<List<ReadRecord>>();
 
     @Test(dataProvider = "composeAllPermutationsOfSamInputResource")
     public void exhaustInputResourcePermutation(final SamInputResource resource) throws IOException {
         final SamReader reader = SamReaderFactory.makeDefault().open(resource);
         LOG.info(String.format("Reading from %s ...", resource));
-        final List<SAMRecord> slurped = Iterables.slurp(reader);
+        final List<ReadRecord> slurped = Iterables.slurp(reader);
         final SAMFileHeader fileHeader = reader.getFileHeader();
         reader.hasIndex();
         reader.indexing().hasBrowseableIndex();
@@ -160,9 +160,9 @@ public class SamReaderFactoryTest {
     }
 
 
-    final Set<List<SAMRecord>> observedRecordOrdering1 = new HashSet<List<SAMRecord>>();
-    final Set<List<SAMRecord>> observedRecordOrdering3 = new HashSet<List<SAMRecord>>();
-    final Set<List<SAMRecord>> observedRecordOrdering20 = new HashSet<List<SAMRecord>>();
+    final Set<List<ReadRecord>> observedRecordOrdering1 = new HashSet<List<ReadRecord>>();
+    final Set<List<ReadRecord>> observedRecordOrdering3 = new HashSet<List<ReadRecord>>();
+    final Set<List<ReadRecord>> observedRecordOrdering20 = new HashSet<List<ReadRecord>>();
 
     @Test(dataProvider = "composeAllPermutationsOfSamInputResource")
     public void queryInputResourcePermutation(final SamInputResource resource) throws IOException {

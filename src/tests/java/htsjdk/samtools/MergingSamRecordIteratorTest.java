@@ -77,7 +77,7 @@ public class MergingSamRecordIteratorTest {
         final int[] startBasesInOrder = {28833, 30000, 28834, 28835, 28835};
 
         while (iterator.hasNext()) {
-            final SAMRecord rec = iterator.next();
+            final ReadRecord rec = iterator.next();
             System.out.println(rec.format());
             Assert.assertEquals(rec.getAlignmentStart(), startBasesInOrder[i]);
             i++;
@@ -120,7 +120,7 @@ public class MergingSamRecordIteratorTest {
         final String[] orderedReadNames = {"a", "b", "c", "d", "e"};
 
         while (iterator.hasNext()) {
-            final SAMRecord rec = iterator.next();
+            final ReadRecord rec = iterator.next();
             System.out.println(rec.getReadName());
             Assert.assertEquals(rec.getReadName(), orderedReadNames[i]);
             i++;
@@ -163,7 +163,7 @@ public class MergingSamRecordIteratorTest {
         final String[] readNames = {"b", "a", "d", "e", "c"};
 
         while (iterator.hasNext()) {
-            final SAMRecord rec = iterator.next();
+            final ReadRecord rec = iterator.next();
             System.out.println(rec.getReadName());
             i++;
         }

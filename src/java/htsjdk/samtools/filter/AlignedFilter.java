@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools.filter;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 
 /**
  * Filter to either include or exclude aligned reads
@@ -45,7 +45,7 @@ public class AlignedFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         if (includeAligned) {
             if (!record.getReadUnmappedFlag()) {
                 return false;
@@ -68,7 +68,7 @@ public class AlignedFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
 
         if (includeAligned) {
             // both first and second must be mapped for it to not be filtered out

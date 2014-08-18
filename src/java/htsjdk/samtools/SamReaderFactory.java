@@ -68,7 +68,7 @@ public abstract class SamReaderFactory {
     abstract public SamReaderFactory validationStringency(final ValidationStringency validationStringency);
 
     private static final SamReaderFactoryImpl DEFAULT =
-            new SamReaderFactoryImpl(Option.DEFAULTS, ValidationStringency.DEFAULT_STRINGENCY, DefaultSAMRecordFactory.getInstance());
+            new SamReaderFactoryImpl(Option.DEFAULTS, ValidationStringency.DEFAULT_STRINGENCY, SAMRecordFactory.getInstance());
 
     /** Creates a copy of the default {@link SamReaderFactory}. */
     public static SamReaderFactory makeDefault() {
@@ -77,10 +77,10 @@ public abstract class SamReaderFactory {
 
     /**
      * Creates an "empty" factory with no enabled {@link Option}s, {@link ValidationStringency#DEFAULT_STRINGENCY}, and 
-     * {@link htsjdk.samtools.DefaultSAMRecordFactory}.
+     * {@link htsjdk.samtools.SAMRecordFactory}.
      */
     public static SamReaderFactory make() {
-        return new SamReaderFactoryImpl(EnumSet.noneOf(Option.class), ValidationStringency.DEFAULT_STRINGENCY, DefaultSAMRecordFactory.getInstance());
+        return new SamReaderFactoryImpl(EnumSet.noneOf(Option.class), ValidationStringency.DEFAULT_STRINGENCY, SAMRecordFactory.getInstance());
     }
 
     private static class SamReaderFactoryImpl extends SamReaderFactory {

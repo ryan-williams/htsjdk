@@ -23,10 +23,10 @@
  */
 package htsjdk.samtools.example;
 
-import htsjdk.samtools.DefaultSAMRecordFactory;
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMFileWriter;
 import htsjdk.samtools.SAMFileWriterFactory;
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SAMRecordFactory;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
@@ -57,7 +57,7 @@ public class ExampleSamUsage {
                 SamReaderFactory.make()
                         .enable(SamReaderFactory.Option.DONT_MEMORY_MAP_INDEX)
                         .validationStringency(ValidationStringency.SILENT)
-                        .samRecordFactory(DefaultSAMRecordFactory.getInstance())
+                        .samRecordFactory(SAMRecordFactory.getInstance())
                         .open(new File("/my.bam"));
 
         /**
@@ -79,7 +79,7 @@ public class ExampleSamUsage {
 
         final SamReader myReader = factory.open(resource);
 
-        for (final SAMRecord samRecord : myReader) {
+        for (final ReadRecord samRecord : myReader) {
             System.err.print(samRecord);
         }
 
@@ -106,7 +106,7 @@ public class ExampleSamUsage {
         final SAMFileWriter outputSam = new SAMFileWriterFactory().makeSAMOrBAMWriter(reader.getFileHeader(),
                 true, outputSamOrBamFile);
 
-        for (final SAMRecord samRecord : reader) {
+        for (final ReadRecord samRecord : reader) {
             // Convert read name to upper case.
             samRecord.setReadName(samRecord.getReadName().toUpperCase());
             outputSam.addAlignment(samRecord);

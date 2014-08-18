@@ -58,7 +58,7 @@ public class BAMFileWriterTest {
         bamFile.deleteOnExit();
         samReader.getFileHeader().setSortOrder(sortOrder);
         final SAMFileWriter bamWriter = new SAMFileWriterFactory().makeSAMOrBAMWriter(samReader.getFileHeader(), presorted, bamFile);
-        CloseableIterator<SAMRecord> it = samReader.iterator();
+        CloseableIterator<ReadRecord> it = samReader.iterator();
         while (it.hasNext()) {
             bamWriter.addAlignment(it.next());
         }
@@ -73,11 +73,11 @@ public class BAMFileWriterTest {
             samReader.getFileHeader().setSortOrder(bamReader.getFileHeader().getSortOrder());
             Assert.assertEquals(bamReader.getFileHeader(), samReader.getFileHeader());
             it = samReader.iterator();
-            final CloseableIterator<SAMRecord> bamIt = bamReader.iterator();
+            final CloseableIterator<ReadRecord> bamIt = bamReader.iterator();
             while (it.hasNext()) {
                 Assert.assertTrue(bamIt.hasNext());
-                final SAMRecord samRecord = it.next();
-                final SAMRecord bamRecord = bamIt.next();
+                final ReadRecord samRecord = it.next();
+                final ReadRecord bamRecord = bamIt.next();
 
                 // SAMRecords don't have this set, so stuff it in there
                 samRecord.setIndexingBin(bamRecord.getIndexingBin());

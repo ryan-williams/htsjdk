@@ -138,7 +138,7 @@ class SAMTextReader extends SAMFileReader.ReaderImplementation {
      *
      * @return Iterator of SAMRecords in file order.
      */
-    public CloseableIterator<SAMRecord> getIterator() {
+    public CloseableIterator<ReadRecord> getIterator() {
         if (mReader == null) {
             throw new IllegalStateException("File reader is closed");
         }
@@ -154,7 +154,7 @@ class SAMTextReader extends SAMFileReader.ReaderImplementation {
      * @param fileSpan The file span.
      * @return An iterator over the given file span.
      */
-    public CloseableIterator<SAMRecord> getIterator(final SAMFileSpan fileSpan) {
+    public CloseableIterator<ReadRecord> getIterator(final SAMFileSpan fileSpan) {
         throw new UnsupportedOperationException("Cannot directly iterate over regions within SAM text files.");
     }
 
@@ -169,23 +169,23 @@ class SAMTextReader extends SAMFileReader.ReaderImplementation {
     /**
      * Unsupported for SAM text files.
      */
-    public CloseableIterator<SAMRecord> query(final String sequence, final int start, final int end, final boolean contained) {
+    public CloseableIterator<ReadRecord> query(final String sequence, final int start, final int end, final boolean contained) {
         throw new UnsupportedOperationException("Cannot query SAM text files");
     }
 
     @Override
-    public CloseableIterator<SAMRecord> query(final QueryInterval[] intervals, final boolean contained) {
+    public CloseableIterator<ReadRecord> query(final QueryInterval[] intervals, final boolean contained) {
         throw new UnsupportedOperationException("Cannot query SAM text files");
     }
 
     /**
      * Unsupported for SAM text files.
      */
-    public CloseableIterator<SAMRecord> queryAlignmentStart(final String sequence, final int start) {
+    public CloseableIterator<ReadRecord> queryAlignmentStart(final String sequence, final int start) {
         throw new UnsupportedOperationException("Cannot query SAM text files");
     }
 
-    public CloseableIterator<SAMRecord> queryUnmapped() {
+    public CloseableIterator<ReadRecord> queryUnmapped() {
         throw new UnsupportedOperationException("Cannot query SAM text files");
     }
 
@@ -208,7 +208,7 @@ class SAMTextReader extends SAMFileReader.ReaderImplementation {
     /**
      * SAMRecord iterator for SAMTextReader
      */
-    private class RecordIterator implements CloseableIterator<SAMRecord> {
+    private class RecordIterator implements CloseableIterator<ReadRecord> {
 
         private final SAMLineParser parser = new SAMLineParser(samRecordFactory, validationStringency,
                 mFileHeader, mParentReader, mFile);
@@ -227,7 +227,7 @@ class SAMTextReader extends SAMFileReader.ReaderImplementation {
             return mCurrentLine != null;
         }
 
-        public SAMRecord next() {
+        public ReadRecord next() {
             if (!hasNext()) {
                 throw new IllegalStateException("Cannot call next() on exhausted iterator");
             }
@@ -242,7 +242,7 @@ class SAMTextReader extends SAMFileReader.ReaderImplementation {
             throw new UnsupportedOperationException("Not supported: remove");
         }
 
-        private SAMRecord parseLine() {
+        private ReadRecord parseLine() {
 
             return parser.parseLine(mCurrentLine, mReader.getLineNumber());
         }

@@ -40,8 +40,8 @@ public class CigarCodecTest {
         Assert.assertEquals(emptyCigar, binaryCigarCodec.decode(new int[0]));
         final int[] binaryCigar = binaryCigarCodec.encode(emptyCigar);
         Assert.assertEquals(0, binaryCigar.length);
-        Assert.assertEquals(emptyCigar, textCigarCodec.decode(SAMRecord.NO_ALIGNMENT_CIGAR));
-        Assert.assertEquals(textCigarCodec.encode(emptyCigar), SAMRecord.NO_ALIGNMENT_CIGAR);
+        Assert.assertEquals(emptyCigar, textCigarCodec.decode(ReadRecord.NO_ALIGNMENT_CIGAR));
+        Assert.assertEquals(textCigarCodec.encode(emptyCigar), ReadRecord.NO_ALIGNMENT_CIGAR);
     }
 
     private static class Cigarette {

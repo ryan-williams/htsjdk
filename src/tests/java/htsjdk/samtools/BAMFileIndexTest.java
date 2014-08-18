@@ -122,11 +122,11 @@ public class BAMFileIndexTest
         final File bamFile = BAM_FILE;
         final SAMFileReader reader = new SAMFileReader(bamFile);
         linearScan.start();
-        CloseableIterator<SAMRecord> it = reader.iterator();
+        CloseableIterator<ReadRecord> it = reader.iterator();
         int mappedCount = 0;
         while (it.hasNext()) {
-            final SAMRecord rec = it.next();
-            if (rec.getReferenceIndex() == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
+            final ReadRecord rec = it.next();
+            if (rec.getReferenceIndex() == ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
                 unmappedCountFromLinearScan = 1;
                 break;
             }
@@ -138,8 +138,8 @@ public class BAMFileIndexTest
         linearScan.start();
         
         while (it.hasNext()) {
-            final SAMRecord rec = it.next();
-            Assert.assertEquals(rec.getReferenceIndex().intValue(), SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX);
+            final ReadRecord rec = it.next();
+            Assert.assertEquals(rec.getReferenceIndex().intValue(), ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX);
             ++unmappedCountFromLinearScan;
         }
         it.close();
@@ -148,8 +148,8 @@ public class BAMFileIndexTest
         it = reader.queryUnmapped();
         int unmappedCountFromQueryUnmapped = 0;
         while (it.hasNext()) {
-            final SAMRecord rec = it.next();
-            Assert.assertEquals(rec.getReferenceIndex().intValue(), SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX);
+            final ReadRecord rec = it.next();
+            Assert.assertEquals(rec.getReferenceIndex().intValue(), ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX);
             ++unmappedCountFromQueryUnmapped;
         }
         it.close();
@@ -164,7 +164,7 @@ public class BAMFileIndexTest
     @Test
     public void testQueryAlignmentStart() {
         final SAMFileReader reader = new SAMFileReader(BAM_FILE);
-        CloseableIterator<SAMRecord> it = reader.queryAlignmentStart("chr1", 202160268);
+        CloseableIterator<ReadRecord> it = reader.queryAlignmentStart("chr1", 202160268);
         Assert.assertEquals(countElements(it), 2);
         it.close();
         it = reader.queryAlignmentStart("chr1", 201595153);
@@ -185,10 +185,10 @@ public class BAMFileIndexTest
         final SAMFileReader reader = new SAMFileReader(BAM_FILE);
 
         // Both ends mapped
-        SAMRecord rec = getSingleRecordStartingAt(reader, "chrM", 1687);
-        SAMRecord mate = reader.queryMate(rec);
+        ReadRecord rec = getSingleRecordStartingAt(reader, "chrM", 1687);
+        ReadRecord mate = reader.queryMate(rec);
         assertMate(rec, mate);
-        SAMRecord originalRec = reader.queryMate(mate);
+        ReadRecord originalRec = reader.queryMate(mate);
         Assert.assertEquals(originalRec, rec);
 
         // One end mapped
@@ -199,10 +199,10 @@ public class BAMFileIndexTest
         Assert.assertEquals(originalRec, rec);
 
         // Both ends mapped
-        final CloseableIterator<SAMRecord> it = reader.queryUnmapped();
+        final CloseableIterator<ReadRecord> it = reader.queryUnmapped();
         rec = null;
         while (it.hasNext()) {
-            final SAMRecord next = it.next();
+            final ReadRecord next = it.next();
             if (next.getReadName().equals("2615")) {
                 rec = next;
                 break;
@@ -216,7 +216,7 @@ public class BAMFileIndexTest
         Assert.assertEquals(originalRec, rec);
     }
 
-    private void assertMate(final SAMRecord rec, final SAMRecord mate) {
+    private void assertMate(final ReadRecord rec, final ReadRecord mate) {
         Assert.assertNotNull(mate);
         Assert.assertEquals(mate.getReadName(), rec.getReadName());
         Assert.assertEquals(mate.getReferenceIndex(), rec.getMateReferenceIndex());
@@ -236,8 +236,8 @@ public class BAMFileIndexTest
         final List<String> referenceNames = getReferenceNames(BAM_FILE);
 
         final QueryInterval[] intervals = generateRandomIntervals(referenceNames.size(), 1000, new Random());
-        final Set<SAMRecord> multiIntervalRecords = new HashSet<SAMRecord>();
-        final Set<SAMRecord> singleIntervalRecords = new HashSet<SAMRecord>();
+        final Set<ReadRecord> multiIntervalRecords = new HashSet<ReadRecord>();
+        final Set<ReadRecord> singleIntervalRecords = new HashSet<ReadRecord>();
         final SAMFileReader reader = new SAMFileReader(BAM_FILE);
         for (final QueryInterval interval : intervals) {
             consumeAll(singleIntervalRecords, reader.query(referenceNames.get(interval.referenceIndex), interval.start, interval.end, contained));
@@ -245,16 +245,16 @@ public class BAMFileIndexTest
 
         final QueryInterval[] optimizedIntervals = QueryInterval.optimizeIntervals(intervals);
         consumeAll(multiIntervalRecords, reader.query(optimizedIntervals, contained));
-        final Iterator<SAMRecord> singleIntervalRecordIterator = singleIntervalRecords.iterator();
+        final Iterator<ReadRecord> singleIntervalRecordIterator = singleIntervalRecords.iterator();
         boolean failed = false;
         while (singleIntervalRecordIterator.hasNext()) {
-            final SAMRecord record = singleIntervalRecordIterator.next();
+            final ReadRecord record = singleIntervalRecordIterator.next();
             if (!multiIntervalRecords.remove(record)) {
                 System.out.println("SingleIntervalQuery found " + record + " but MultiIntervalQuery did not");
                 failed = true;
             }
         }
-        for (final SAMRecord record : multiIntervalRecords) {
+        for (final ReadRecord record : multiIntervalRecords) {
             System.out.println("MultiIntervalQuery found " + record + " but SingleIntervalQuery did not");
             failed = true;
         }
@@ -289,7 +289,7 @@ public class BAMFileIndexTest
         SAMFileWriterFactory samFileWriterFactory = new SAMFileWriterFactory();
         samFileWriterFactory.setCreateIndex(true);
         final SAMFileWriter writer = samFileWriterFactory.makeBAMWriter(textReader.getFileHeader(), true, bamFile);
-        for (final SAMRecord rec : textReader) {
+        for (final ReadRecord rec : textReader) {
             writer.addAlignment(rec);
         }
         writer.close();
@@ -305,17 +305,17 @@ public class BAMFileIndexTest
         iterator.close();
     }
 
-    private SAMRecord getSingleRecordStartingAt(final SAMFileReader reader, final String sequence, final int alignmentStart) {
-        final CloseableIterator<SAMRecord> it = reader.queryAlignmentStart(sequence, alignmentStart);
+    private ReadRecord getSingleRecordStartingAt(final SAMFileReader reader, final String sequence, final int alignmentStart) {
+        final CloseableIterator<ReadRecord> it = reader.queryAlignmentStart(sequence, alignmentStart);
         Assert.assertTrue(it.hasNext());
-        final SAMRecord rec = it.next();
+        final ReadRecord rec = it.next();
         Assert.assertNotNull(rec);
         Assert.assertFalse(it.hasNext());
         it.close();
         return rec;
     }
 
-    private int countElements(final CloseableIterator<SAMRecord> it) {
+    private int countElements(final CloseableIterator<ReadRecord> it) {
         int num;
         for (num = 0; it.hasNext(); ++num, it.next()) {
         }
@@ -381,12 +381,12 @@ public class BAMFileIndexTest
         verbose("Testing query " + sequence + ":" + startPos + "-" + endPos + " ...");
         final SAMFileReader reader1 = new SAMFileReader(bamFile);
         final SAMFileReader reader2 = new SAMFileReader(bamFile);
-        final Iterator<SAMRecord> iter1 = reader1.query(sequence, startPos, endPos, contained);
-        final Iterator<SAMRecord> iter2 = reader2.iterator();
+        final Iterator<ReadRecord> iter1 = reader1.query(sequence, startPos, endPos, contained);
+        final Iterator<ReadRecord> iter2 = reader2.iterator();
         // Compare ordered iterators.
         // Confirm that iter1 is a subset of iter2 that properly filters.
-        SAMRecord record1 = null;
-        SAMRecord record2 = null;
+        ReadRecord record1 = null;
+        ReadRecord record2 = null;
         int count1 = 0;
         int count2 = 0;
         int beforeCount = 0;
@@ -437,7 +437,7 @@ public class BAMFileIndexTest
         return count1;
     }
 
-    private void checkPassesFilter(final boolean expected, final SAMRecord record, final String sequence, final int startPos, final int endPos, final boolean contained) {
+    private void checkPassesFilter(final boolean expected, final ReadRecord record, final String sequence, final int startPos, final int endPos, final boolean contained) {
         final boolean passes = passesFilter(record, sequence, startPos, endPos, contained);
         if (passes != expected) {
             System.out.println("Error: Record erroneously " +
@@ -451,7 +451,7 @@ public class BAMFileIndexTest
         }
     }
 
-    private boolean passesFilter(final SAMRecord record, final String sequence, final int startPos, final int endPos, final boolean contained) {
+    private boolean passesFilter(final ReadRecord record, final String sequence, final int startPos, final int endPos, final boolean contained) {
         if (record == null) {
             return false;
         }
@@ -487,7 +487,7 @@ public class BAMFileIndexTest
         return true;
     }
 
-    private int compareCoordinates(final SAMRecord record1, final SAMRecord record2) {
+    private int compareCoordinates(final ReadRecord record1, final ReadRecord record2) {
         final int seqIndex1 = record1.getReferenceIndex();
         final int seqIndex2 = record2.getReferenceIndex();
         if (seqIndex1 == -1) {

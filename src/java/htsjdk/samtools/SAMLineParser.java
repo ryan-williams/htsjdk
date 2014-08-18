@@ -85,7 +85,7 @@ public class SAMLineParser {
      */
     public SAMLineParser(final SAMFileHeader samFileHeader) {
 
-        this(new DefaultSAMRecordFactory(),
+        this(SAMRecordFactory.getInstance(),
                 ValidationStringency.DEFAULT_STRINGENCY, samFileHeader,
                 null, null);
     }
@@ -99,7 +99,7 @@ public class SAMLineParser {
     public SAMLineParser(final SAMFileHeader samFileHeader,
                          final SAMFileReader samFileReader, final File samFile) {
 
-        this(new DefaultSAMRecordFactory(),
+        this(SAMRecordFactory.getInstance(),
                 ValidationStringency.DEFAULT_STRINGENCY, samFileHeader,
                 samFileReader, samFile);
     }
@@ -187,7 +187,7 @@ public class SAMLineParser {
      * @param line line to parse
      * @return a new SAMRecord object
      */
-    public SAMRecord parseLine(final String line) {
+    public ReadRecord parseLine(final String line) {
 
         return parseLine(line, -1);
     }
@@ -199,7 +199,7 @@ public class SAMLineParser {
      *          can be <=0.
      * @return a new SAMRecord object
      */
-    public SAMRecord parseLine(final String line, final int lineNumber) {
+    public ReadRecord parseLine(final String line, final int lineNumber) {
 
         final String mCurrentLine = line;
         this.currentLineNumber = lineNumber;
@@ -217,7 +217,7 @@ public class SAMLineParser {
                 reportErrorParsingLine("Empty field at position " + i + " (zero-based)");
             }
         }
-        final SAMRecord samRecord =
+        final ReadRecord samRecord =
                 samRecordFactory.createSAMRecord(this.mFileHeader);
         samRecord.setValidationStringency(this.validationStringency);
         if (mParentReader != null)
@@ -240,7 +240,7 @@ public class SAMLineParser {
         final int pos = parseInt(mFields[POS_COL], "POS");
         final int mapq = parseInt(mFields[MAPQ_COL], "MAPQ");
         final String cigar = mFields[CIGAR_COL];
-        if (!SAMRecord.NO_ALIGNMENT_REFERENCE_NAME.equals(samRecord
+        if (!ReadRecord.NO_ALIGNMENT_REFERENCE_NAME.equals(samRecord
                 .getReferenceName())) {
             if (pos == 0) {
                 reportErrorParsingLine("POS must be non-zero if RNAME is specified");
@@ -289,7 +289,7 @@ public class SAMLineParser {
         final int matePos = parseInt(mFields[MPOS_COL], "MPOS");
         final int isize = parseInt(mFields[ISIZE_COL], "ISIZE");
         if (!samRecord.getMateReferenceName().equals(
-                SAMRecord.NO_ALIGNMENT_REFERENCE_NAME)) {
+                ReadRecord.NO_ALIGNMENT_REFERENCE_NAME)) {
             if (matePos == 0) {
                 reportErrorParsingLine("MPOS must be non-zero if MRNM is specified");
             }
@@ -307,10 +307,10 @@ public class SAMLineParser {
             validateReadBases(mFields[SEQ_COL]);
             samRecord.setReadString(mFields[SEQ_COL]);
         } else {
-            samRecord.setReadBases(SAMRecord.NULL_SEQUENCE);
+            samRecord.setReadBases(ReadRecord.NULL_SEQUENCE);
         }
         if (!mFields[QUAL_COL].equals("*")) {
-            if (samRecord.getReadBases() == SAMRecord.NULL_SEQUENCE) {
+            if (samRecord.getReadBases() == ReadRecord.NULL_SEQUENCE) {
                 reportErrorParsingLine("QUAL should not be specified if SEQ is not specified");
             }
             if (samRecord.getReadString().length() != mFields[QUAL_COL].length()) {
@@ -318,7 +318,7 @@ public class SAMLineParser {
             }
             samRecord.setBaseQualityString(mFields[QUAL_COL]);
         } else {
-            samRecord.setBaseQualities(SAMRecord.NULL_QUALS);
+            samRecord.setBaseQualities(ReadRecord.NULL_QUALS);
         }
 
         for (int i = NUM_REQUIRED_FIELDS; i < numFields; ++i) {
@@ -389,7 +389,7 @@ public class SAMLineParser {
         }
     }
 
-    private void parseTag(final SAMRecord samRecord, final String tag) {
+    private void parseTag(final ReadRecord samRecord, final String tag) {
         Map.Entry<String, Object> entry = null;
         try {
             entry = tagCodec.decode(tag);

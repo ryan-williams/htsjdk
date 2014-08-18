@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools.filter;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.util.SequenceUtil;
 
 /**
@@ -40,7 +40,7 @@ public class SolexaNoiseFilter implements SamRecordFilter {
      * @param record    the SAMRecord to evaluate
      * @return  true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         final byte[] sequence = record.getReadBases();
         for (final byte base : sequence) {
             if (base != 'A' && base != 'a' &&
@@ -59,7 +59,7 @@ public class SolexaNoiseFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
         // only filter out the pair if both first and second reads have all As
         return (filterOut(first) && filterOut(second));
     }

@@ -248,7 +248,7 @@ public class MergingSamRecordIteratorGroupCollisionTest {
         Assert.assertTrue(outputProgramGroups.get(1).equivalent(program2));
 
         final MergingSamRecordIterator iterator = new MergingSamRecordIterator(headerMerger, readers, false);
-        SAMRecord samRecord = iterator.next();
+        ReadRecord samRecord = iterator.next();
         Assert.assertEquals(samRecord.getAttribute(SAMTag.PG.name()), "0");
         samRecord = iterator.next();
         Assert.assertEquals(samRecord.getAttribute(SAMTag.PG.name()), "0.1");
@@ -261,7 +261,7 @@ public class MergingSamRecordIteratorGroupCollisionTest {
                                GroupAdapter adapter, boolean addReadGroup, String... attrs) {
         final MergingSamRecordIterator iterator = new MergingSamRecordIterator(headerMerger, readers, addReadGroup);
         for (int j=0 ; j < attrs.length ; j++) {
-            SAMRecord samRecord = iterator.next();
+            ReadRecord samRecord = iterator.next();
             Assert.assertEquals(samRecord.getAttribute(adapter.getTagName()), attrs[j]);
         }
         Assert.assertFalse(iterator.hasNext());
@@ -318,7 +318,7 @@ public class MergingSamRecordIteratorGroupCollisionTest {
 
 
         final MergingSamRecordIterator iterator = new MergingSamRecordIterator(headerMerger, readers, false);
-        SAMRecord samRecord = iterator.next();
+        ReadRecord samRecord = iterator.next();
         Assert.assertEquals(samRecord.getAttribute(SAMTag.PG.name()), "0");
         samRecord = iterator.next();
         Assert.assertEquals(samRecord.getAttribute(SAMTag.PG.name()), "0");

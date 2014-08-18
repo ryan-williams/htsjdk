@@ -79,10 +79,10 @@ public class BAMIndexer {
      *
      * @param rec The BAM record
      */
-    public void processAlignment(final SAMRecord rec) {
+    public void processAlignment(final ReadRecord rec) {
         try {
             final int reference = rec.getReferenceIndex();
-            if (reference != SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX && reference != currentReference) {
+            if (reference != ReadRecord.NO_ALIGNMENT_REFERENCE_INDEX && reference != currentReference) {
                 // process any completed references
                 advanceToReference(reference);
             }
@@ -175,12 +175,12 @@ public class BAMIndexer {
          *
          * @param rec The BAM record. Requires rec.getFileSource() is non-null.
          */
-        public void processAlignment(final SAMRecord rec) {
+        public void processAlignment(final ReadRecord rec) {
 
             // metadata
             indexStats.recordMetaData(rec);
 
-            if (rec.getAlignmentStart() == SAMRecord.NO_ALIGNMENT_START) {
+            if (rec.getAlignmentStart() == ReadRecord.NO_ALIGNMENT_START) {
                 return; // do nothing for records without coordinates, but count them
             }
 
@@ -283,7 +283,7 @@ public class BAMIndexer {
         int totalRecords = 0;
 
         // create and write the content
-        for (SAMRecord rec : reader) {
+        for (ReadRecord rec : reader) {
             if (++totalRecords % 1000000 == 0) {
                 if (null != log) log.info(totalRecords + " reads processed ...");
             }

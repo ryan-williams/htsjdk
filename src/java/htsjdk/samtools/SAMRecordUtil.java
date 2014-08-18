@@ -40,7 +40,7 @@ public class SAMRecordUtil {
     /**
      * Reverse-complement all known sequence and base quality attributes of the SAMRecord.
      */
-    public static void reverseComplement(final SAMRecord rec) {
+    public static void reverseComplement(final ReadRecord rec) {
         final byte[] readBases = rec.getReadBases();
         SequenceUtil.reverseComplement(readBases);
         rec.setReadBases(readBases);

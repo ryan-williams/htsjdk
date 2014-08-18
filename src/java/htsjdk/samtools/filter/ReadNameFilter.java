@@ -23,8 +23,8 @@
  */
 package htsjdk.samtools.filter;
 
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMException;
-import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.util.IOUtil;
 
 import java.io.BufferedReader;
@@ -79,7 +79,7 @@ public class ReadNameFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         if (includeReads) {
             if (readNameFilterSet.contains(record.getReadName())) {
                 return false;
@@ -101,7 +101,7 @@ public class ReadNameFilter implements SamRecordFilter {
      *
      * @return true if the pair of records matches filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
         if (includeReads) {
             if (readNameFilterSet.contains(first.getReadName()) &&
                 readNameFilterSet.contains(second.getReadName())) {

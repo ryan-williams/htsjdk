@@ -31,7 +31,7 @@ import htsjdk.samtools.util.CloseableIterator;
  * want to validate as they are iterating that that the records in the
  * underlying SAM/BAM file are in a particular order.
  */
-public interface SAMRecordIterator extends CloseableIterator<SAMRecord> {
+public interface SAMRecordIterator extends CloseableIterator<ReadRecord> {
 
     /**
      * Establishes that records returned by this iterator are expected to

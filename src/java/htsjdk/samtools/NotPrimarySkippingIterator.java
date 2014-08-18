@@ -32,10 +32,10 @@ import htsjdk.samtools.util.PeekIterator;
  * handle those concerns separately.
  */
 public class NotPrimarySkippingIterator {
-    private final PeekIterator<SAMRecord> it;
+    private final PeekIterator<ReadRecord> it;
 
-    public NotPrimarySkippingIterator(final CloseableIterator<SAMRecord> underlyingIt) {
-        it = new PeekIterator<SAMRecord>(underlyingIt);
+    public NotPrimarySkippingIterator(final CloseableIterator<ReadRecord> underlyingIt) {
+        it = new PeekIterator<ReadRecord>(underlyingIt);
         skipAnyNotprimary();
     }
 
@@ -43,7 +43,7 @@ public class NotPrimarySkippingIterator {
         return it.hasNext();
     }
 
-    public SAMRecord getCurrent() {
+    public ReadRecord getCurrent() {
         assert(hasCurrent());
         return it.peek();
     }

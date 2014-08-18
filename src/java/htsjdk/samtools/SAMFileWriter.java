@@ -33,7 +33,7 @@ import htsjdk.samtools.util.ProgressLoggerInterface;
  */
 public interface SAMFileWriter extends Closeable {
 
-	void addAlignment(SAMRecord alignment);
+	void addAlignment(ReadRecord alignment);
 
     SAMFileHeader getFileHeader();
 

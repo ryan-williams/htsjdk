@@ -82,7 +82,7 @@ public class ValidateSamFileTest {
         for (int i=0; i<20; i++) {
             samBuilder.addFrag(String.valueOf(i), 1, i, false);
         }
-        for (final SAMRecord record : samBuilder) {
+        for (final ReadRecord record : samBuilder) {
             record.setProperPairFlag(true);
         }
 
@@ -102,7 +102,7 @@ public class ValidateSamFileTest {
         for (int i=0; i<6; i++) {
             samBuilder.addFrag(String.valueOf(i), i, i, false);
         }
-        final Iterator<SAMRecord> records = samBuilder.iterator();
+        final Iterator<ReadRecord> records = samBuilder.iterator();
         records.next().setProperPairFlag(true);
         records.next().setMateUnmappedFlag(true);
         records.next().setMateNegativeStrandFlag(true);
@@ -127,7 +127,7 @@ public class ValidateSamFileTest {
         for (int i=0; i<5; i++) {
             samBuilder.addPair(String.valueOf(i), i, i, i+100);
         }
-        final Iterator<SAMRecord> records = samBuilder.iterator();
+        final Iterator<ReadRecord> records = samBuilder.iterator();
         records.next().setMateReferenceName("*");
         records.next().setMateAlignmentStart(Integer.MAX_VALUE);
         records.next().setMateAlignmentStart(records.next().getAlignmentStart()+1);
@@ -151,7 +151,7 @@ public class ValidateSamFileTest {
         final SAMRecordSetBuilder samBuilder = new SAMRecordSetBuilder(true, sortOrder);
 
         samBuilder.addPair(String.valueOf(1), 1, 1, 101);
-        final Iterator<SAMRecord> records = samBuilder.iterator();
+        final Iterator<ReadRecord> records = samBuilder.iterator();
         records.next();
         records.remove();
         final Histogram<String> results = executeValidation(samBuilder.getSamReader(), null);
@@ -175,7 +175,7 @@ public class ValidateSamFileTest {
         for (int i=0; i<4; i++) {
             samBuilder.addUnmappedFragment(String.valueOf(i));
         }
-        final Iterator<SAMRecord> records = samBuilder.iterator();
+        final Iterator<ReadRecord> records = samBuilder.iterator();
         records.next().setReadNegativeStrandFlag(true);
         records.next().setNotPrimaryAlignmentFlag(true);
         records.next().setMappingQuality(10);
@@ -194,7 +194,7 @@ public class ValidateSamFileTest {
         for (int i=0; i<2; i++) {
             samBuilder.addFrag(String.valueOf(i), i, i, false);
         }
-        final Iterator<SAMRecord> records = samBuilder.iterator();
+        final Iterator<ReadRecord> records = samBuilder.iterator();
         records.next().setCigarString("25M3S25M");
         records.next().setReferenceName("*");
 
@@ -212,11 +212,11 @@ public class ValidateSamFileTest {
         for (int i=0; i<3; i++) {
             samBuilder.addFrag(String.valueOf(i), i, i+1, false);
         }
-        final Iterator<SAMRecord> records = samBuilder.iterator();
+        final Iterator<ReadRecord> records = samBuilder.iterator();
         records.next().setAttribute(ReservedTagConstants.NM, 4);
 
         // PIC-215: Confirm correct NM value when there is an insertion and a deletion.
-        final SAMRecord recordWithInsert = records.next();
+        final ReadRecord recordWithInsert = records.next();
         final byte[] sequence = recordWithInsert.getReadBases();
         Arrays.fill(sequence, (byte)'A');
         recordWithInsert.setReadBases(sequence);

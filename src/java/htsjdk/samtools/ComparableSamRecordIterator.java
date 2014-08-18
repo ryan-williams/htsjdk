@@ -33,8 +33,8 @@ import java.util.Comparator;
  * The comparison is performed by comparing the next record in the iterator to the next
  * record in another iterator and returning the ordering between those SAM records.
  */
-class ComparableSamRecordIterator extends PeekableIterator<SAMRecord> implements Comparable<ComparableSamRecordIterator> {
-    private final Comparator<SAMRecord> comparator;
+class ComparableSamRecordIterator extends PeekableIterator<ReadRecord> implements Comparable<ComparableSamRecordIterator> {
+    private final Comparator<ReadRecord> comparator;
     private final SAMFileReader reader;    
 
     /**
@@ -44,7 +44,7 @@ class ComparableSamRecordIterator extends PeekableIterator<SAMRecord> implements
      * @param iterator the wrapped iterator.
      * @param comparator the Comparator to use to provide ordering fo SAMRecords
      */
-    public ComparableSamRecordIterator(final SAMFileReader sam, final CloseableIterator<SAMRecord> iterator, final Comparator<SAMRecord> comparator) {
+    public ComparableSamRecordIterator(final SAMFileReader sam, final CloseableIterator<ReadRecord> iterator, final Comparator<ReadRecord> comparator) {
         super(iterator);
         this.reader = sam;        
         this.comparator = comparator;
@@ -69,8 +69,8 @@ class ComparableSamRecordIterator extends PeekableIterator<SAMRecord> implements
                     "have different orderings internally");
         }
 
-        final SAMRecord record = this.peek();
-        final SAMRecord record2 = that.peek();
+        final ReadRecord record = this.peek();
+        final ReadRecord record2 = that.peek();
         return comparator.compare(record, record2);
     }
 

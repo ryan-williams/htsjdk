@@ -57,7 +57,7 @@ public class SAMTextWriterTest {
             inputSAM.getFileHeader().setAttribute(entry.getKey(), entry.getValue().toString());
         }
         final SAMFileWriter samWriter = new SAMFileWriterFactory().makeSAMWriter(inputSAM.getFileHeader(), false, samFile);
-        for (final SAMRecord samRecord : inputSAM) {
+        for (final ReadRecord samRecord : inputSAM) {
             samWriter.addAlignment(samRecord);
         }
         samWriter.close();
@@ -71,12 +71,12 @@ public class SAMTextWriterTest {
 
         final SAMFileReader newSAM = new SAMFileReader(samFile);
         Assert.assertEquals(newSAM.getFileHeader(), inputSAM.getFileHeader());
-        final Iterator<SAMRecord> inputIt = inputSAM.iterator();
-        final Iterator<SAMRecord> newSAMIt = newSAM.iterator();
+        final Iterator<ReadRecord> inputIt = inputSAM.iterator();
+        final Iterator<ReadRecord> newSAMIt = newSAM.iterator();
         while (inputIt.hasNext()) {
             Assert.assertTrue(newSAMIt.hasNext());
-            final SAMRecord inputSAMRecord = inputIt.next();
-            final SAMRecord newSAMRecord = newSAMIt.next();
+            final ReadRecord inputSAMRecord = inputIt.next();
+            final ReadRecord newSAMRecord = newSAMIt.next();
 
             // Force reference index attributes to be populated
             inputSAMRecord.getReferenceIndex();

@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools.filter;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 
 /**
  * Filter for filtering out reads that do not pass the quality filter
@@ -38,7 +38,7 @@ public class FailsVendorReadQualityFilter implements SamRecordFilter {
      * @param record    the SAMRecord to evaluate
      * @return  true if the SAMRecord matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         return record.getReadFailsVendorQualityCheckFlag();
     }
 
@@ -50,7 +50,7 @@ public class FailsVendorReadQualityFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
         // if either fails, exclude them both
         return (first.getReadFailsVendorQualityCheckFlag() || second.getReadFailsVendorQualityCheckFlag());
     }

@@ -23,8 +23,8 @@
  */
 package htsjdk.samtools.filter;
 
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.ReservedTagConstants;
-import htsjdk.samtools.SAMRecord;
 
 /**
  * Filter SAMRecords so that only those that have at least one un-clipped base are
@@ -44,7 +44,7 @@ public class WholeReadClippedFilter implements SamRecordFilter {
      *         otherwise false
      */
     @Override
-    public boolean filterOut(final SAMRecord record) {
+    public boolean filterOut(final ReadRecord record) {
         return record.getAttribute(ReservedTagConstants.XT) != null
                 && (Integer)record.getAttribute(ReservedTagConstants.XT) == 1;
     }
@@ -57,7 +57,7 @@ public class WholeReadClippedFilter implements SamRecordFilter {
      *
      * @return true if the SAMRecords matches the filter, otherwise false
      */
-    public boolean filterOut(final SAMRecord first, final SAMRecord second) {
+    public boolean filterOut(final ReadRecord first, final ReadRecord second) {
         // if either fails, exclude them both
         return (filterOut(first) || filterOut(second));
     }

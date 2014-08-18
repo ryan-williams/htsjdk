@@ -99,7 +99,7 @@ public class SamFileHeaderMergerTest {
         int totalCount = 0;
 
         while (iterator.hasNext()) {
-            SAMRecord r = iterator.next();
+            ReadRecord r = iterator.next();
             if (seqCounts.containsKey(r.getReferenceIndex())) {
                 seqCounts.put(r.getReferenceIndex(), seqCounts.get(r.getReferenceIndex()) + 1);
             } else {

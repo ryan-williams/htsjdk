@@ -70,7 +70,7 @@ public class SequenceNameTruncationAndValidationTest {
         for (final SAMSequenceRecord sequence : reader.getFileHeader().getSequenceDictionary().getSequences()) {
             Assert.assertFalse(sequence.getSequenceName().contains(" "), sequence.getSequenceName());
         }
-        for (final SAMRecord rec: reader) {
+        for (final ReadRecord rec: reader) {
             Assert.assertFalse(rec.getReferenceName().contains(" "));
         }
     }
@@ -85,7 +85,7 @@ public class SequenceNameTruncationAndValidationTest {
     @Test(expectedExceptions = {SAMFormatException.class})
     public void testBadRname() {
         final SAMFileReader reader = new SAMFileReader(new File(TEST_DATA_DIR, "readWithBadRname.sam"));
-        for (final SAMRecord rec: reader) {
+        for (final ReadRecord rec: reader) {
         }
         Assert.fail("Should not reach here.");
     }

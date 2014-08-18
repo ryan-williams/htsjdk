@@ -24,7 +24,8 @@
 package htsjdk.samtools.util;
 
 import htsjdk.samtools.Cigar;
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
+import htsjdk.samtools.SAMRecordFactory;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SAMTag;
 import htsjdk.samtools.SAMTextHeaderCodec;
@@ -88,7 +89,7 @@ public class SequenceUtilTest {
     public void testMakeReferenceFromAlignment(final String seq, final String cigar, final String md,
                                                boolean includeReferenceBasesForDeletions,
                                                final String expectedReference) {
-        final SAMRecord rec = new SAMRecord(null);
+        final ReadRecord rec = SAMRecordFactory.getInstance().createSAMRecord(null);
         rec.setReadName("test");
         rec.setReadString(seq);
         rec.setCigarString(cigar);

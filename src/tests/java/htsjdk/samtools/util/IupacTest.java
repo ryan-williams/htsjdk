@@ -24,11 +24,12 @@
 package htsjdk.samtools.util;
 
 import htsjdk.samtools.BamFileIoUtils;
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMFileReader;
 import htsjdk.samtools.SAMFileWriter;
 import htsjdk.samtools.SAMFileWriterFactory;
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SAMRecordFactory;
 import htsjdk.samtools.SAMRecordIterator;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -49,7 +50,7 @@ public class IupacTest {
         Arrays.fill(quals, (byte)20);
         final String[] reads = {bases1,  bases1.toLowerCase(), bases2, bases2.toLowerCase()};
         for (int i = 0; i < reads.length; ++i) {
-            final SAMRecord rec = new SAMRecord(writer.getFileHeader());
+            final ReadRecord rec = SAMRecordFactory.getInstance().createSAMRecord(writer.getFileHeader());
             rec.setReadName("read" + i);
             rec.setReadUnmappedFlag(true);
             rec.setReadString(reads[i]);
@@ -60,7 +61,7 @@ public class IupacTest {
         final SAMFileReader reader = new SAMFileReader(outputFile);
         final SAMRecordIterator it = reader.iterator();
         for (int i = 0; i < reads.length; ++i) {
-            final SAMRecord rec = it.next();
+            final ReadRecord rec = it.next();
             Assert.assertEquals(rec.getReadString(), reads[i].toUpperCase());
         }
         reader.close();

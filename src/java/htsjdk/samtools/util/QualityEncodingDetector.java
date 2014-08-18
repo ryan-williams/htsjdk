@@ -1,8 +1,8 @@
 package htsjdk.samtools.util;
 
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMException;
 import htsjdk.samtools.SAMFileReader;
-import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
 import htsjdk.samtools.fastq.FastqReader;
 import htsjdk.samtools.fastq.FastqRecord;
@@ -121,7 +121,7 @@ public class QualityEncodingDetector {
          * Since we desire original scores here (whatever was in the file to begin with), we effectively undo this
          * transformation by asking SAMRecord to convert the quality back into the ASCII that was read in the file.
          */
-        public void add(final SAMRecord samRecord) {
+        public void add(final ReadRecord samRecord) {
             addAsciiQuality(samRecord.getBaseQualityString().getBytes());
         }
 
@@ -174,7 +174,7 @@ public class QualityEncodingDetector {
     /**
      * Adds the provided record's qualities to the detector.
      */
-    public void add(final SAMRecord samRecord) {
+    public void add(final ReadRecord samRecord) {
         this.qualityAggregator.add(samRecord);
     }
 

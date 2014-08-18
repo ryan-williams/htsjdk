@@ -111,7 +111,7 @@ public class SAMFileWriterFactoryTest {
    private void fillSmallBam(SAMFileWriter writer) {
        final SAMRecordSetBuilder builder = new SAMRecordSetBuilder();
        builder.addUnmappedFragment("HiMom!");
-       for (final SAMRecord rec: builder.getRecords()) writer.addAlignment(rec);
+       for (final ReadRecord rec: builder.getRecords()) writer.addAlignment(rec);
    }    
    
 }

@@ -23,7 +23,7 @@
  */
 package htsjdk.samtools.filter;
 
-import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMRecordSetBuilder;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -44,7 +44,7 @@ public class FailsVendorReadQualityFilterTest {
     public void testFailsReadQualityFilter(final String testName, final boolean readQualityFlag,
                                            final boolean expectedResult) {
         builder.addUnmappedFragment("testfrag");
-        final SAMRecord record = builder.iterator().next();
+        final ReadRecord record = builder.iterator().next();
         record.setReadFailsVendorQualityCheckFlag(readQualityFlag);
         Assert.assertEquals(filter.filterOut(record), expectedResult, testName);
     }

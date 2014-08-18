@@ -23,8 +23,8 @@
  */
 package htsjdk.samtools.filter;
 
+import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.ReservedTagConstants;
-import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordSetBuilder;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -53,7 +53,7 @@ public class TagFilterTest {
                               final Object testValue, final boolean expectedResult) {
         final TagFilter filter = new TagFilter(tag, validValues);
         builder.addUnmappedFragment("testfrag");
-        final SAMRecord record = builder.iterator().next();
+        final ReadRecord record = builder.iterator().next();
         if (testValue != null) {
             record.setAttribute(tag, testValue);
         }

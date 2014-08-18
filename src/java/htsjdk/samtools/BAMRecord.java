@@ -108,7 +108,8 @@ public class BAMRecord extends SAMRecord {
     /**
      * Force all the lazily-initialized attributes to be decoded.
      */
-    protected void eagerDecode() {
+    @Override
+    public void eagerDecode() {
         getReadName();
         getCigar();
         getReadBases();
@@ -291,7 +292,7 @@ public class BAMRecord extends SAMRecord {
     }
 
     @Override
-    protected SAMBinaryTagAndValue getBinaryAttributes() {
+    public SAMBinaryTagAndValue getBinaryAttributes() {
         if (!mAttributesDecoded) {
             decodeAttributes();
         }
@@ -311,7 +312,7 @@ public class BAMRecord extends SAMRecord {
 
     private byte[] decodeBaseQualities() {
         if (mReadLength == 0) {
-            return SAMRecord.NULL_QUALS;
+            return ReadRecord.NULL_QUALS;
         }
         final int qualsOffset = readNameSize() + cigarSize() + basesSize();
         final byte[] ret = new byte[qualsSize()];

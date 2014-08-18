@@ -47,7 +47,7 @@ public class SAMIntegerTagTest {
 
     @Test
     public void testBAM() throws Exception {
-        final SAMRecord rec = writeAndReadSamRecord("bam");
+        final ReadRecord rec = writeAndReadSamRecord("bam");
         Assert.assertTrue(rec.getAttribute(BYTE_TAG) instanceof Integer);
         Assert.assertEquals(((Number)rec.getAttribute(BYTE_TAG)).intValue(), 1);
         Assert.assertTrue(rec.getAttribute(SHORT_TAG) instanceof Integer);
@@ -58,7 +58,7 @@ public class SAMIntegerTagTest {
 
     @Test
     public void testSAM() throws Exception {
-        final SAMRecord rec = writeAndReadSamRecord("sam");
+        final ReadRecord rec = writeAndReadSamRecord("sam");
         Assert.assertTrue(rec.getAttribute(BYTE_TAG) instanceof Integer);
         Assert.assertEquals(((Number)rec.getAttribute(BYTE_TAG)).intValue(), 1);
         Assert.assertTrue(rec.getAttribute(SHORT_TAG) instanceof Integer);
@@ -69,7 +69,7 @@ public class SAMIntegerTagTest {
 
     @Test(expectedExceptions = SAMException.class)
     public void testUnsignedIntegerBAM() throws Exception {
-        SAMRecord rec = createSamRecord();
+        ReadRecord rec = createSamRecord();
         final long val = 1l + Integer.MAX_VALUE;
         rec.setAttribute(UNSIGNED_INTEGER_TAG, val);
         Assert.fail("Exception should have been thrown.");
@@ -80,14 +80,14 @@ public class SAMIntegerTagTest {
      */
     @Test(expectedExceptions = SAMException.class)
     public void testUnsignedIntegerSAM() throws Exception {
-        final SAMRecord rec = createSamRecord();
+        final ReadRecord rec = createSamRecord();
         final long val = 1l + Integer.MAX_VALUE;
         rec.setAttribute(UNSIGNED_INTEGER_TAG, val);
     }
 
     @Test
     public void testGetTypedAttributeMethods() throws Exception {
-        final SAMRecord rec = writeAndReadSamRecord("bam");
+        final ReadRecord rec = writeAndReadSamRecord("bam");
         Assert.assertEquals(rec.getByteAttribute(INTEGER_TAG).intValue(), 1);
         Assert.assertEquals(rec.getShortAttribute(INTEGER_TAG).intValue(), 1);
         Assert.assertEquals(rec.getIntegerAttribute(INTEGER_TAG).intValue(), 1);
@@ -98,7 +98,7 @@ public class SAMIntegerTagTest {
      */
     @Test(expectedExceptions = RuntimeException.class)
     public void testGetTypedAttributeForWrongType() throws Exception {
-        final SAMRecord rec = createSamRecord();
+        final ReadRecord rec = createSamRecord();
         rec.setAttribute(STRING_TAG, "Hello, World!");
         writeAndReadSamRecord("bam", rec);
         rec.getIntegerAttribute(STRING_TAG);
@@ -112,7 +112,7 @@ public class SAMIntegerTagTest {
      */
     @Test(expectedExceptions = RuntimeException.class)
     public void testGetTypedAttributeOverflow() throws Exception {
-        final SAMRecord rec = createSamRecord();
+        final ReadRecord rec = createSamRecord();
         rec.setAttribute(INTEGER_TAG, Integer.MAX_VALUE);
         writeAndReadSamRecord("bam", rec);
         rec.getShortAttribute(INTEGER_TAG);
@@ -126,7 +126,7 @@ public class SAMIntegerTagTest {
      */
     @Test(expectedExceptions = RuntimeException.class)
     public void testGetTypedAttributeUnerflow() throws Exception {
-        final SAMRecord rec = createSamRecord();
+        final ReadRecord rec = createSamRecord();
         rec.setAttribute(INTEGER_TAG, Integer.MIN_VALUE);
         writeAndReadSamRecord("bam", rec);
         rec.getShortAttribute(INTEGER_TAG);
@@ -138,8 +138,8 @@ public class SAMIntegerTagTest {
      * @param format "sam" or "bam".
      * @return The record after having being read from file.
      */
-    private SAMRecord writeAndReadSamRecord(final String format) throws IOException {
-        SAMRecord rec = createSamRecord();
+    private ReadRecord writeAndReadSamRecord(final String format) throws IOException {
+        ReadRecord rec = createSamRecord();
         rec.setAttribute(BYTE_TAG, (byte)1);
         rec.setAttribute(SHORT_TAG, (short)1);
         rec.setAttribute(INTEGER_TAG, 1);
@@ -153,7 +153,7 @@ public class SAMIntegerTagTest {
      * @param rec The record to write.
      * @return The same record, after having being written and read back.
      */
-    private SAMRecord writeAndReadSamRecord(final String format, SAMRecord rec) throws IOException {
+    private ReadRecord writeAndReadSamRecord(final String format, ReadRecord rec) throws IOException {
         final File bamFile = File.createTempFile("test.", "." + format);
         bamFile.deleteOnExit();
         final SAMFileWriter bamWriter = new SAMFileWriterFactory().makeSAMOrBAMWriter(rec.getHeader(), false, bamFile);
@@ -165,7 +165,7 @@ public class SAMIntegerTagTest {
         return rec;
     }
 
-    private SAMRecord createSamRecord() {
+    private ReadRecord createSamRecord() {
         final SAMRecordSetBuilder builder = new SAMRecordSetBuilder(false, SAMFileHeader.SortOrder.unsorted);
         builder.addFrag("readA", 20, 140, false);
         return builder.iterator().next();
@@ -190,7 +190,7 @@ public class SAMIntegerTagTest {
     public void testBadBamLenient() {
         final SAMFileReader reader = new SAMFileReader(new File(TEST_DATA_DIR, "variousAttributes.bam"), true);
         reader.setValidationStringency(ValidationStringency.LENIENT);
-        final SAMRecord rec = reader.iterator().next();
+        final ReadRecord rec = reader.iterator().next();
         final Map<String, Number> expectedTags = new HashMap<String, Number>();
         expectedTags.put("SB", -128);
         expectedTags.put("UB", 129);

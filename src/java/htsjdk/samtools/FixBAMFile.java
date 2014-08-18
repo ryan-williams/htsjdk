@@ -34,7 +34,7 @@ public class FixBAMFile
         reader.setValidationStringency(ValidationStringency.SILENT);
         SAMFileHeader header = reader.getFileHeader();
         SAMFileWriter writer = new SAMFileWriterFactory().makeBAMWriter(header, true, outputFile);
-        for (SAMRecord record : reader) {
+        for (ReadRecord record : reader) {
             if (record.getIndexingBin() != null) {
                 record.setIndexingBin(record.computeIndexingBin());
             }
