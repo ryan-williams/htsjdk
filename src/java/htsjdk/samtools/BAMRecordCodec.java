@@ -184,7 +184,8 @@ public class BAMRecordCodec implements SortingCollection.Codec<ReadRecord> {
         if (recordLength < BAMFileConstants.FIXED_BLOCK_SIZE) {
             throw new SAMFormatException("Invalid record length: " + recordLength);
         }
-        
+
+        /*
         final int referenceID = this.binaryCodec.readInt();
         final int coordinate = this.binaryCodec.readInt() + 1;
         final short readNameLength = this.binaryCodec.readUByte();
@@ -203,5 +204,11 @@ public class BAMRecordCodec implements SortingCollection.Codec<ReadRecord> {
                 bin, cigarLen, flags, readLen, mateReferenceID, mateCoordinate, insertSize, restOfRecord);
         ret.setHeader(header); 
         return ret;
+        */
+
+        final byte[] record = new byte[recordLength];
+        this.binaryCodec.readBytes(record);
+        return this.samRecordFactory.createFastBAMRecord(header, record);
+
     }
 }

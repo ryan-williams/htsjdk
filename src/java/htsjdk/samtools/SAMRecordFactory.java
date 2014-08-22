@@ -47,4 +47,11 @@ public class SAMRecordFactory {
                 insertSize,
                 variableLengthBlock);
     }
+
+
+    /** Create a new BAM Record. */
+    public ReadRecord createFastBAMRecord (final SAMFileHeader header,
+                                           final byte[] record) {
+        return new FastBAMRecord(header, record);
+    }
 }

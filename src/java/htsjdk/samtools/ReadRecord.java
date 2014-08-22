@@ -45,6 +45,25 @@ public interface ReadRecord extends Cloneable {
      */
     int MAX_INSERT_SIZE = 1<<29;
 
+
+    /**
+     * It is not necessary in general to use the flag constants, because there are getters
+     * & setters that handles these symbolically.
+     */
+    static final int READ_PAIRED_FLAG = 0x1;
+    static final int PROPER_PAIR_FLAG = 0x2;
+    static final int READ_UNMAPPED_FLAG = 0x4;
+    static final int MATE_UNMAPPED_FLAG = 0x8;
+    static final int READ_STRAND_FLAG = 0x10;
+    static final int MATE_STRAND_FLAG = 0x20;
+    static final int FIRST_OF_PAIR_FLAG = 0x40;
+    static final int SECOND_OF_PAIR_FLAG = 0x80;
+    static final int NOT_PRIMARY_ALIGNMENT_FLAG = 0x100;
+    static final int READ_FAILS_VENDOR_QUALITY_CHECK_FLAG = 0x200;
+    static final int DUPLICATE_READ_FLAG = 0x400;
+    static final int SUPPLEMENTARY_ALIGNMENT_FLAG = 0x800;
+
+
     String getReadName();
 
     /**
