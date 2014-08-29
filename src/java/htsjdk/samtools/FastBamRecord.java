@@ -1116,6 +1116,14 @@ public class FastBAMRecord extends AbstractReadRecord
     }
 
 
+    @Override
+    public SAMReadGroupRecord getReadGroup() {
+        if(!hasAttribute(SAMTagUtil.RG))
+            return null;
+        final String rgId = (String)getAttribute(SAMTagUtil.RG);
+        return getHeader().getReadGroup(rgId);
+    }
+
     //========================================================
     //=============== UNIMPLEMENTED METHODS ==================
     //========================================================
@@ -1137,12 +1145,6 @@ public class FastBAMRecord extends AbstractReadRecord
 
     @Override
     public int getReferencePositionAtReadPosition(final int offset) {
-        throw new RuntimeException("Not implemented");
-    }
-
-
-    @Override
-    public SAMReadGroupRecord getReadGroup() {
         throw new RuntimeException("Not implemented");
     }
 
