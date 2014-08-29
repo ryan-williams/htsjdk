@@ -104,7 +104,7 @@ public final class SAMUtils
     }
 
     /**
-     * Convert from a byte array with basese stored in nybbles, with =, A, C, G, T represented as 0, 1, 2, 4, 8, 15,
+     * Convert from a byte array with bases stored in nybbles, with =, A, C, G, T represented as 0, 1, 2, 4, 8, 15,
      * to a a byte array containing =AaCcGgTtNn represented as ASCII.
      * @param length Number of bases (not bytes) to convert.
      * @param compressedBases Bases represented as nybbles, in BAM binary format.
@@ -581,9 +581,9 @@ public final class SAMUtils
      * Determines if a cigar has any element that both consumes read bases and consumes reference bases
      * (e.g. is not all soft-clipped)
      */
-    public static boolean cigarMapsNoBasesToRef(final Cigar cigar) {
-        for (final CigarElement el : cigar.getCigarElements()) {
-            if (el.getOperator().consumesReadBases() && el.getOperator().consumesReferenceBases()) {
+    public static boolean cigarMapsNoBasesToRef(final ReadRecord rec) {
+        for (final CigarOperator op : ((FastBAMRecord) rec).getCigarOps()) {
+            if (op.consumesReadBases() && op.consumesReferenceBases()) {
                 return false;
             }
         }
@@ -657,7 +657,7 @@ public final class SAMUtils
         int readBase = 1;
         int refBase  = alignmentStart;
 
-        for (final CigarElement e : cigar.getCigarElements()) {
+        for(final CigarElement e : cigar.getCigarElements()) {
             switch (e.getOperator()) {
                 case H : break; // ignore hard clips
                 case P : break; // ignore pads

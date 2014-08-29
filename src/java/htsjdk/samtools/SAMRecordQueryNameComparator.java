@@ -53,8 +53,8 @@ public class SAMRecordQueryNameComparator implements SAMRecordComparator {
         if (samRecord1.getSupplementaryAlignmentFlag() != samRecord2.getSupplementaryAlignmentFlag()) {
             return samRecord2.getSupplementaryAlignmentFlag() ? -1 : 1;
         }
-        final Integer hitIndex1 = samRecord1.getIntegerAttribute(SAMTag.HI.name());
-        final Integer hitIndex2 = samRecord2.getIntegerAttribute(SAMTag.HI.name());
+        final Integer hitIndex1 = ((FastBAMRecord) samRecord1).getIntegerAttribute(SAMTagUtil.HI);
+        final Integer hitIndex2 = ((FastBAMRecord) samRecord2).getIntegerAttribute(SAMTagUtil.HI);
         if (hitIndex1 != null) {
             if (hitIndex2 == null) return 1;
             else {

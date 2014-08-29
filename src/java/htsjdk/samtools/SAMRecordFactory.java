@@ -33,6 +33,8 @@ public class SAMRecordFactory {
                                       final int insertSize,
                                       final byte[] variableLengthBlock) {
 
+        throw new IllegalStateException("Use createFastBAMRecord(..) instead.");
+        /*
         return new BAMRecord(header,
                 referenceSequenceIndex,
                 alignmentStart,
@@ -46,11 +48,12 @@ public class SAMRecordFactory {
                 mateAlignmentStart,
                 insertSize,
                 variableLengthBlock);
+         */
     }
 
 
     /** Create a new BAM Record. */
-    public ReadRecord createFastBAMRecord (final SAMFileHeader header,
+    public ReadRecord createFastBAMRecord(final SAMFileHeader header,
                                            final byte[] record) {
         return new FastBAMRecord(header, record);
     }

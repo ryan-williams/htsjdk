@@ -27,6 +27,7 @@ import htsjdk.samtools.AlignmentBlock;
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.CigarOperator;
+import htsjdk.samtools.FastBAMRecord;
 import htsjdk.samtools.ReadRecord;
 import htsjdk.samtools.SAMException;
 import htsjdk.samtools.SAMSequenceDictionary;
@@ -500,9 +501,10 @@ public class SequenceUtil {
     public static int calculateSamNmTag(final ReadRecord read, final byte[] referenceBases,
                                         final int referenceOffset, final boolean bisulfiteSequence) {
         int samNm = countMismatches(read, referenceBases, referenceOffset, bisulfiteSequence);
-        for (final CigarElement el : read.getCigar().getCigarElements()) {
-            if (el.getOperator() == CigarOperator.INSERTION || el.getOperator() == CigarOperator.DELETION) {
-                samNm += el.getLength();
+        for (int i = 0; i < read.getCigarLength(); i++) {
+            final CigarOperator op = ((FastBAMRecord) read).getCigarOp(i);
+            if (op == CigarOperator.INSERTION || op == CigarOperator.DELETION) {
+                samNm += ((FastBAMRecord) read).getCigarOpLength(i);
             }
         }
         return samNm;

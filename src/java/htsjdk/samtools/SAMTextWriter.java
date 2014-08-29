@@ -89,8 +89,10 @@ public class SAMTextWriter extends SAMFileWriterImpl {
      *
      * @param alignment SAMRecord.
      */
-    public void writeAlignment(final ReadRecord alignment) {
-        try {
+    public void writeAlignment(final ReadRecord alignment)
+    {
+        try
+        {
             out.write(alignment.getReadName());
             out.write(FIELD_SEPARATOR);
             out.write(Integer.toString(alignment.getFlags()));
@@ -119,17 +121,16 @@ public class SAMTextWriter extends SAMFileWriterImpl {
             out.write(alignment.getReadString());
             out.write(FIELD_SEPARATOR);
             out.write(alignment.getBaseQualityString());
-            SAMBinaryTagAndValue attribute = alignment.getBinaryAttributes();
-            while (attribute != null) {
+            for(short tag : ((FastBAMRecord) alignment).getAttributesIterator()) {
+                Object value = ((FastBAMRecord) alignment).getAttribute(tag);
+                char tagType = ((FastBAMRecord) alignment).getAttributeType(tag);
                 out.write(FIELD_SEPARATOR);
-                final String encodedTag;
-                if (attribute.isUnsignedArray()) {
-                    encodedTag = tagCodec.encodeUnsignedArray(tagUtil.makeStringTag(attribute.tag), attribute.value);
-                } else {
-                    encodedTag = tagCodec.encode(tagUtil.makeStringTag(attribute.tag), attribute.value);
+
+                if (tagType == 'B') {
+                    throw new IllegalStateException("Not implemented");
                 }
+                final String encodedTag = tagCodec.encode(tagUtil.makeStringTag(tag), value);
                 out.write(encodedTag);
-                attribute = attribute.getNext();
             }
             out.write("\n");
 
@@ -138,15 +139,16 @@ public class SAMTextWriter extends SAMFileWriterImpl {
         }
     }
 
-    /* This method is called by SAMRecord.getSAMString(). */
+        /* This method is called by SAMRecord.getSAMString(). */
     private static SAMTextWriter textWriter = null;
     private static StringWriter stringWriter = null;
-    static synchronized String getSAMString(final ReadRecord alignment) {
-	if (stringWriter == null) stringWriter = new StringWriter();
-	if (textWriter == null) textWriter = new SAMTextWriter(stringWriter);
-	stringWriter.getBuffer().setLength(0);
-	textWriter.writeAlignment(alignment);
-	return stringWriter.toString();
+    static synchronized String getSAMString(final ReadRecord alignment)
+    {
+        if (stringWriter == null) stringWriter = new StringWriter();
+        if (textWriter == null) textWriter = new SAMTextWriter(stringWriter);
+        stringWriter.getBuffer().setLength(0);
+        textWriter.writeAlignment(alignment);
+        return stringWriter.toString();
     }
 
     /**

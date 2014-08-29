@@ -87,83 +87,15 @@ public class BAMRecordCodec implements SortingCollection.Codec<ReadRecord> {
      * @param alignment Record to be written.
      */
     public void encode(final ReadRecord alignment) {
-        // Compute block size, as it is the first element of the file representation of SAMRecord
-        final int readLength = alignment.getReadLength();
+        //TODO make sure index bin logic here is correct
+        if(alignment.getIndexingBin() == null && alignment.getReferenceIndex() >= 0)
+            alignment.setIndexingBin(alignment.computeIndexingBin());
+        else
+            alignment.setIndexingBin(0);
 
-        final int cigarLength = alignment.getCigarLength();
-
-        int blockSize = BAMFileConstants.FIXED_BLOCK_SIZE + alignment.getReadNameLength() + 1  + // null terminated
-                        cigarLength * 4 +
-                        (readLength + 1) / 2 + // 2 bases per byte, round up
-                        readLength;
-
-        final int attributesSize = alignment.getAttributesBinarySize();
-        if (attributesSize != -1) {
-            // binary attribute size already known, don't need to compute.
-            blockSize += attributesSize;
-        } else {
-            SAMBinaryTagAndValue attribute = alignment.getBinaryAttributes();
-            while (attribute != null) {
-                blockSize += (BinaryTagCodec.getTagSize(attribute.value));
-                attribute = attribute.getNext();
-            }
-        }
-
-        int indexBin = 0;
-        if (alignment.getReferenceIndex() >= 0) {
-            if (alignment.getIndexingBin() != null) {
-                indexBin = alignment.getIndexingBin();
-            } else {
-                indexBin = alignment.computeIndexingBin();
-            }
-        }
-
-        // Blurt out the elements
-        this.binaryCodec.writeInt(blockSize);
-        this.binaryCodec.writeInt(alignment.getReferenceIndex());
-        // 0-based!!
-        this.binaryCodec.writeInt(alignment.getAlignmentStart() - 1);
-        this.binaryCodec.writeUByte((short)(alignment.getReadNameLength() + 1));
-        this.binaryCodec.writeUByte((short)alignment.getMappingQuality());
-        this.binaryCodec.writeUShort(indexBin);
-        this.binaryCodec.writeUShort(cigarLength);
-        this.binaryCodec.writeUShort(alignment.getFlags());
-        this.binaryCodec.writeInt(alignment.getReadLength());
-        this.binaryCodec.writeInt(alignment.getMateReferenceIndex());
-        this.binaryCodec.writeInt(alignment.getMateAlignmentStart() - 1);
-        this.binaryCodec.writeInt(alignment.getInferredInsertSize());
-        final byte[] variableLengthBinaryBlock = alignment.getVariableBinaryRepresentation();
-        if (variableLengthBinaryBlock != null) {
-            // Don't need to encode variable-length block, because it is unchanged from
-            // when the record was read from a BAM file.
-            this.binaryCodec.writeBytes(variableLengthBinaryBlock);
-        } else {
-            if (alignment.getReadLength() != alignment.getBaseQualities().length &&
-                alignment.getBaseQualities().length != 0) {
-                throw new RuntimeException("Mismatch between read length and quals length writing read " +
-                alignment.getReadName() + "; read length: " + alignment.getReadLength() +
-                "; quals length: " + alignment.getBaseQualities().length);
-            }
-            this.binaryCodec.writeString(alignment.getReadName(), false, true);
-            final int[] binaryCigar = cigarCodec.encode(alignment.getCigar());
-            for (final int cigarElement : binaryCigar) {
-                // Assumption that this will fit into an integer, despite the fact
-                // that it is specced as a uint.
-                this.binaryCodec.writeInt(cigarElement);
-            }
-            this.binaryCodec.writeBytes(SAMUtils.bytesToCompressedBases(alignment.getReadBases()));
-            byte[] qualities = alignment.getBaseQualities();
-            if (qualities.length == 0) {
-                qualities = new byte[alignment.getReadLength()];
-                Arrays.fill(qualities, (byte) 0xFF);
-            }
-            this.binaryCodec.writeBytes(qualities);
-            SAMBinaryTagAndValue attribute = alignment.getBinaryAttributes();
-            while (attribute != null) {
-                this.binaryTagCodec.writeTag(attribute.tag, attribute.value, attribute.isUnsignedArray());
-                attribute = attribute.getNext();
-            }
-        }
+        byte[] record = ((FastBAMRecord) alignment).getRecord();
+        this.binaryCodec.writeInt(record.length);
+        this.binaryCodec.writeBytes(record);
     }
 
     /**
@@ -184,27 +116,6 @@ public class BAMRecordCodec implements SortingCollection.Codec<ReadRecord> {
         if (recordLength < BAMFileConstants.FIXED_BLOCK_SIZE) {
             throw new SAMFormatException("Invalid record length: " + recordLength);
         }
-
-        /*
-        final int referenceID = this.binaryCodec.readInt();
-        final int coordinate = this.binaryCodec.readInt() + 1;
-        final short readNameLength = this.binaryCodec.readUByte();
-        final short mappingQuality = this.binaryCodec.readUByte();
-        final int bin = this.binaryCodec.readUShort();
-        final int cigarLen = this.binaryCodec.readUShort();
-        final int flags = this.binaryCodec.readUShort();
-        final int readLen = this.binaryCodec.readInt();
-        final int mateReferenceID = this.binaryCodec.readInt();
-        final int mateCoordinate = this.binaryCodec.readInt() + 1;
-        final int insertSize = this.binaryCodec.readInt();
-        final byte[] restOfRecord = new byte[recordLength - BAMFileConstants.FIXED_BLOCK_SIZE];
-        this.binaryCodec.readBytes(restOfRecord);
-        final ReadRecord ret = this.samRecordFactory.createBAMRecord(
-                header, referenceID, coordinate, readNameLength, mappingQuality,
-                bin, cigarLen, flags, readLen, mateReferenceID, mateCoordinate, insertSize, restOfRecord);
-        ret.setHeader(header); 
-        return ret;
-        */
 
         final byte[] record = new byte[recordLength];
         this.binaryCodec.readBytes(record);

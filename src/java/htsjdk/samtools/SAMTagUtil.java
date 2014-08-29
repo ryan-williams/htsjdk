@@ -36,40 +36,42 @@ import htsjdk.samtools.util.StringUtil;
 public class SAMTagUtil {
 
     // Standard tags pre-computed for convenience
-    public final short RG = makeBinaryTag(SAMTag.RG.name());
-    public final short LB = makeBinaryTag(SAMTag.LB.name());
-    public final short PU = makeBinaryTag(SAMTag.PU.name());
-    public final short PG = makeBinaryTag(SAMTag.PG.name());
-    public final short AS = makeBinaryTag(SAMTag.AS.name());
-    public final short SQ = makeBinaryTag(SAMTag.SQ.name());
-    public final short MQ = makeBinaryTag(SAMTag.MQ.name());
-    public final short NM = makeBinaryTag(SAMTag.NM.name());
-    public final short H0 = makeBinaryTag(SAMTag.H0.name());
-    public final short H1 = makeBinaryTag(SAMTag.H1.name());
-    public final short H2 = makeBinaryTag(SAMTag.H2.name());
-    public final short UQ = makeBinaryTag(SAMTag.UQ.name());
-    public final short PQ = makeBinaryTag(SAMTag.PQ.name());
-    public final short NH = makeBinaryTag(SAMTag.NH.name());
-    public final short IH = makeBinaryTag(SAMTag.IH.name());
-    public final short HI = makeBinaryTag(SAMTag.HI.name());
-    public final short MD = makeBinaryTag(SAMTag.MD.name());
-    public final short CS = makeBinaryTag(SAMTag.CS.name());
-    public final short CQ = makeBinaryTag(SAMTag.CQ.name());
-    public final short CM = makeBinaryTag(SAMTag.CM.name());
-    public final short R2 = makeBinaryTag(SAMTag.R2.name());
-    public final short Q2 = makeBinaryTag(SAMTag.Q2.name());
-    public final short S2 = makeBinaryTag(SAMTag.S2.name());
-    public final short CC = makeBinaryTag(SAMTag.CC.name());
-    public final short CP = makeBinaryTag(SAMTag.CP.name());
-    public final short SM = makeBinaryTag(SAMTag.SM.name());
-    public final short AM = makeBinaryTag(SAMTag.AM.name());
-    public final short MF = makeBinaryTag(SAMTag.MF.name());
-    public final short E2 = makeBinaryTag(SAMTag.E2.name());
-    public final short U2 = makeBinaryTag(SAMTag.U2.name());
-    public final short OQ = makeBinaryTag(SAMTag.OQ.name());
-    public final short FZ = makeBinaryTag(SAMTag.FZ.name());
-    public final short SA = makeBinaryTag(SAMTag.SA.name());
-    public final short MC = makeBinaryTag(SAMTag.MC.name());
+    public final static short RG = makeBinaryTag(SAMTag.RG.name());
+    public final static short LB = makeBinaryTag(SAMTag.LB.name());
+    public final static short PU = makeBinaryTag(SAMTag.PU.name());
+    public final static short PG = makeBinaryTag(SAMTag.PG.name());
+    public final static short AS = makeBinaryTag(SAMTag.AS.name());
+    public final static short SQ = makeBinaryTag(SAMTag.SQ.name());
+    public final static short MQ = makeBinaryTag(SAMTag.MQ.name());
+    public final static short NM = makeBinaryTag(SAMTag.NM.name());
+    public final static short H0 = makeBinaryTag(SAMTag.H0.name());
+    public final static short H1 = makeBinaryTag(SAMTag.H1.name());
+    public final static short H2 = makeBinaryTag(SAMTag.H2.name());
+    public final static short UQ = makeBinaryTag(SAMTag.UQ.name());
+    public final static short PQ = makeBinaryTag(SAMTag.PQ.name());
+    public final static short NH = makeBinaryTag(SAMTag.NH.name());
+    public final static short IH = makeBinaryTag(SAMTag.IH.name());
+    public final static short HI = makeBinaryTag(SAMTag.HI.name());
+    public final static short MD = makeBinaryTag(SAMTag.MD.name());
+    public final static short CS = makeBinaryTag(SAMTag.CS.name());
+    public final static short CQ = makeBinaryTag(SAMTag.CQ.name());
+    public final static short CM = makeBinaryTag(SAMTag.CM.name());
+    public final static short R2 = makeBinaryTag(SAMTag.R2.name());
+    public final static short Q2 = makeBinaryTag(SAMTag.Q2.name());
+    public final static short S2 = makeBinaryTag(SAMTag.S2.name());
+    public final static short CC = makeBinaryTag(SAMTag.CC.name());
+    public final static short CP = makeBinaryTag(SAMTag.CP.name());
+    public final static short SM = makeBinaryTag(SAMTag.SM.name());
+    public final static short AM = makeBinaryTag(SAMTag.AM.name());
+    public final static short MF = makeBinaryTag(SAMTag.MF.name());
+    public final static short E2 = makeBinaryTag(SAMTag.E2.name());
+    public final static short U2 = makeBinaryTag(SAMTag.U2.name());
+    public final static short OQ = makeBinaryTag(SAMTag.OQ.name());
+    public final static short FZ = makeBinaryTag(SAMTag.FZ.name());
+    public final static short SA = makeBinaryTag(SAMTag.SA.name());
+    public final static short MC = makeBinaryTag(SAMTag.MC.name());
+
+    public final static short XT = makeBinaryTag("XT");
 
     private static SAMTagUtil singleton;
 
@@ -95,7 +97,7 @@ public class SAMTagUtil {
      * @param tag 2-character String representation of a tag name.
      * @return Tag name packed as 2 ASCII bytes in a short.
      */
-    public short makeBinaryTag(final String tag) {
+    public static short makeBinaryTag(final String tag) {
         if (tag.length() != 2) {
             throw new IllegalArgumentException("String tag does not have length() == 2: " + tag);
         }
