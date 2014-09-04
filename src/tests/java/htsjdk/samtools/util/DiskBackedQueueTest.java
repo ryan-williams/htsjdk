@@ -64,4 +64,21 @@ public class DiskBackedQueueTest extends SortingCollectionTest {
         return DiskBackedQueue.newInstance(new StringCodec(), maxRecordsInRam, Collections.singletonList(tmpDir));
     }
 
+    @Test(testName = "addCutoffOBO")
+    public void testDequeueToDiskStartThenReEnqueue() {
+        DiskBackedQueue<String> queue = makeDiskBackedQueue(2);
+        queue.add("foo");
+        queue.add("bar");
+        queue.add("baz");
+        Assert.assertEquals("foo", queue.poll());
+        Assert.assertEquals("bar", queue.poll());
+
+        // This fails: spilled-to-disk records have not been read yet, but we are unable to add a record due to an
+        // on-disk record having been, ahem, queued up for reading.
+        Assert.assertTrue(queue.canAdd());
+        queue.add("oops");
+        Assert.assertEquals("baz", queue.poll());
+        Assert.assertEquals("oops", queue.poll());
+    }
+
 }
